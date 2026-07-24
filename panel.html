@@ -37,11 +37,13 @@ const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const client = supabase.createClient(PROJECT_URL, ANON_KEY);
 
 document.getElementById("btn").onclick = async () => {
-  const title = document.getElementById("title").value;
+  let titleInput = document.getElementById("title").value;
+  const originalName = file.name.replace(".mp3", "");
+  const title = titleInput.trim() === "" ? originalName : titleInput;
   const type = document.getElementById("type").value;
   const file = document.getElementById("file").files[0];
 
-  if (!file || !title) return alert("Dosya ve ad gerekli");
+  if (!file) return alert("Dosya seç");
 
   document.getElementById("msg").innerText = "Yükleniyor...";
 
