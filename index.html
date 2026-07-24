@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Mansur Gross Radyo</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 body {
   margin:0;
@@ -63,22 +65,17 @@ button {
 <audio id="player"></audio>
 
 <script>
-const muzikler = [
-  "muzik/muzik(1).mp3",
-  "muzik/muzik(2).mp3",
-  "muzik/muzik(3).mp3",
-  "muzik/muzik(4).mp3",
-  "muzik/muzik(5).mp3"
-];
+const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";  // 🔴 BURAYA KENDİ KEYİNİ YAZ
 
-const jingle = "jingle/Mansur Gross jingıl.mp3";
-
-const anonslar = [
-  "anons/mansur 20-30 Haziran-1.mp3"
-];
+const client = supabase.createClient(PROJECT_URL, ANON_KEY);
 
 const player = document.getElementById("player");
 const durum = document.getElementById("durum");
+
+let muzikler = [];
+let jingles = [];
+let anonslar = [];
 
 let sira = 0;
 let adim = 0;
@@ -90,37 +87,59 @@ function karistir(a){
   }
 }
 
-karistir(muzikler);
+async function verileriYukle(){
+  const { data, error } = await client.from("songs").select("*");
+
+  if(error){
+    console.error(error);
+    durum.innerText = "Veri hatası";
+    return;
+  }
+
+  muzikler = data.filter(x => x.type === "music");
+  jingles = data.filter(x => x.type === "jingle");
+  anonslar = data.filter(x => x.type === "anons");
+
+  karistir(muzikler);
+}
 
 function cal(){
-  let dosya="";
-  if(adim===0){
-    dosya = muzikler[sira];
-    durum.innerText="🎵 Müzik Çalıyor";
-  } else if(adim===1){
-    dosya = jingle;
-    durum.innerText="🔔 Jingle";
-  } else {
-    if(anonslar.length>0){
-      dosya = anonslar[Math.floor(Math.random()*anonslar.length)];
-      durum.innerText="📢 Anons";
-    } else {
-      gec();
-      return;
-    }
+  if(muzikler.length === 0){
+    durum.innerText = "Müzik yok";
+    return;
   }
-  player.src = encodeURI(dosya);
+
+  let url = "";
+
+  if(adim === 0){
+    url = muzikler[sira].url;
+    durum.innerText = "🎵 Müzik Çalıyor";
+  }
+  else if(adim === 1 && jingles.length > 0){
+    url = jingles[Math.floor(Math.random()*jingles.length)].url;
+    durum.innerText = "🔔 Jingle";
+  }
+  else if(adim === 2 && anonslar.length > 0){
+    url = anonslar[Math.floor(Math.random()*anonslar.length)].url;
+    durum.innerText = "📢 Anons";
+  }
+  else{
+    gec();
+    return;
+  }
+
+  player.src = url;
   player.play();
 }
 
 function gec(){
   adim++;
-  if(adim>2){
-    adim=0;
+  if(adim > 2){
+    adim = 0;
     sira++;
-    if(sira>=muzikler.length){
+    if(sira >= muzikler.length){
       karistir(muzikler);
-      sira=0;
+      sira = 0;
     }
   }
   cal();
@@ -129,12 +148,11 @@ function gec(){
 player.onended = gec;
 player.onerror = gec;
 
-document.getElementById("play").onclick = function(){
-  if(player.src===""){
-    cal();
-  } else {
-    player.play();
+document.getElementById("play").onclick = async function(){
+  if(muzikler.length === 0){
+    await verileriYukle();
   }
+  cal();
 };
 
 document.getElementById("pause").onclick = function(){
