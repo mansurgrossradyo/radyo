@@ -2,36 +2,31 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Radyo Panel</title>
+<title>Radyo Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 body{font-family:Arial;background:#111;color:#fff;text-align:center;padding:40px}
-input,select,button{padding:12px;margin:10px;font-size:16px;border-radius:5px;border:none}
-button{background:#28a745;color:white;cursor:pointer}
-#liste{margin-top:40px;text-align:left;max-width:600px;margin-left:auto;margin-right:auto}
-.satir{background:#222;padding:12px;margin:8px 0;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
-.sil{background:#dc3545;padding:6px 14px;font-size:14px}
+input,select,button{padding:12px;margin:10px;font-size:16px}
+button{background:#28a745;color:white;cursor:pointer;border:none;border-radius:5px}
 </style>
 </head>
 <body>
 
 <h1>🎛 RADYO PANEL</h1>
 
-<input type="text" id="title" placeholder="Şarkı / Anons adı">
+<input type="text" id="title" placeholder="Şarkı adı">
 <select id="type">
   <option value="music">Müzik</option>
   <option value="jingle">Jingle</option>
   <option value="anons">Anons</option>
 </select>
-<input type="file" id="file" accept="audio/*">
+<input type="file" id="file" accept="audio/mp3">
 <br>
 <button id="btn">📤 YÜKLE</button>
 <p id="msg"></p>
 
-<div id="liste"></div>
-
 <script>
-const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
+const PROJECT_URL = "https://xiidhsrcyitcwcwbomga.supabase.co";
 const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
 
 const client = supabase.createClient(PROJECT_URL, ANON_KEY);
@@ -40,71 +35,35 @@ document.getElementById("btn").onclick = async () => {
   const title = document.getElementById("title").value;
   const type = document.getElementById("type").value;
   const file = document.getElementById("file").files[0];
-
-  if (!file || !title) return alert("Dosya ve ad gerekli");
-
+  
+  if(!file || !title) return alert("Dosya ve ad gerekli");
+  
   document.getElementById("msg").innerText = "Yükleniyor...";
-
-  const safeName = Date.now() + "_" + Math.floor(Math.random()*1000) + ".mp3";
-
-  const { error: upErr } = await client.storage
-    .from("radyo")
-    .upload(safeName, file, { upsert: true });
-
-  if (upErr) {
+  
+  const safeName = Date.now() + ".mp3";
+  
+  const { error: upErr } = await client.storage.from("radyo").upload(safeName, file);
+  if(upErr) {
     console.error(upErr);
-    document.getElementById("msg").innerText = "";
     return alert("Storage hatası: " + upErr.message);
   }
-
-  const { data } = client.storage.from("radyo").getPublicUrl(safeName);
-
-  const { error: dbErr } = await client.from("songs").insert({
+  
+  const {data} = client.storage.from("radyo").getPublicUrl(safeName);
+  
+  const {error: dbErr} = await client.from("songs").insert({
     title: title,
     url: data.publicUrl,
     type: type
   });
-
-  if (dbErr) {
+  
+  if(dbErr) {
     console.error(dbErr);
-    document.getElementById("msg").innerText = "";
     return alert("DB hatası: " + dbErr.message);
   }
-
-  document.getElementById("msg").innerText = "";
-  document.getElementById("title").value = "";
-  document.getElementById("file").value = "";
+  
   alert("✅ Başarıyla yüklendi!");
-  listele();
+  document.getElementById("msg").innerText = "";
 };
-
-async function listele() {
-  const { data, error } = await client.from("songs").select("*").order("id");
-  if (error) { console.error(error); return; }
-
-  let html = "<h3>📋 Yüklü Dosyalar</h3>";
-  if (!data || data.length === 0) {
-    html += "<p>Henüz dosya yok</p>";
-  } else {
-    data.forEach(s => {
-      const etiket = s.type === "music" ? "🎵" : (s.type === "jingle" ? "🔔" : "📢");
-      html += `<div class="satir">
-                 <span>${etiket} ${s.title}</span>
-                 <button class="sil" onclick="sil(${s.id})">SİL</button>
-               </div>`;
-    });
-  }
-  document.getElementById("liste").innerHTML = html;
-}
-
-async function sil(id) {
-  if (!confirm("Silinsin mi?")) return;
-  const { error } = await client.from("songs").delete().eq("id", id);
-  if (error) { alert("Silme hatası: " + error.message); return; }
-  listele();
-}
-
-listele();
 </script>
 
 </body>
