@@ -3,20 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <title>Mansur Gross Radyo</title>
+
 <style>
-  body { background:#111; color:#fff; font-family:Arial; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; }
-  #baslat { font-size:40px; padding:30px 60px; cursor:pointer; background:#e91e63; color:#fff; border:none; border-radius:15px; }
-  #bilgi { margin-top:30px; font-size:22px; }
+body {
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  font-family:Arial, sans-serif;
+  color:white;
+  background: url("https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4") no-repeat center center/cover;
+}
+
+#panel {
+  background: rgba(0,0,0,0.75);
+  padding:40px 60px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(0,0,0,0.6);
+}
+
+#baslik {
+  font-size:40px;
+  margin-bottom:20px;
+}
+
+#durum {
+  margin-top:20px;
+  font-size:22px;
+  min-height:30px;
+}
+
+button {
+  font-size:26px;
+  padding:15px 40px;
+  margin:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+#play {
+  background:#28a745;
+  color:white;
+}
+
+#pause {
+  background:#dc3545;
+  color:white;
+}
 </style>
 </head>
+
 <body>
 
-<button id="baslat">▶ RADYOYU BAŞLAT</button>
-<div id="bilgi"></div>
+<div id="panel">
+  <div id="baslik">🎧 MANSUR GROSS RADYO</div>
+
+  <button id="play">▶ PLAY</button>
+  <button id="pause">⏸ PAUSE</button>
+
+  <div id="durum"></div>
+</div>
+
 <audio id="player"></audio>
 
 <script>
-// ==== DOSYA LİSTELERİ ====
+// ===== DOSYALAR =====
 const muzikler = [
   "muzik/muzik(1).mp3",
   "muzik/muzik(2).mp3",
@@ -30,14 +85,13 @@ const jingle = "jingle/Mansur Gross jingıl.mp3";
 const anonslar = [
   "anons/mansur 20-30 Haziran-1.mp3"
 ];
-// =========================
+// ====================
 
 const player = document.getElementById("player");
-const bilgi = document.getElementById("bilgi");
-const btn = document.getElementById("baslat");
+const durum = document.getElementById("durum");
 
 let sira = 0;
-let adim = 0; // 0=muzik, 1=jingle, 2=anons
+let adim = 0;
 
 function karistir(a){
   for(let i=a.length-1;i>0;i--){
@@ -49,17 +103,17 @@ function karistir(a){
 karistir(muzikler);
 
 function cal(){
-  let dosya = "";
-  if(adim === 0){
+  let dosya="";
+  if(adim===0){
     dosya = muzikler[sira];
-    bilgi.innerText = "🎵 Müzik çalıyor...";
-  } else if(adim === 1){
+    durum.innerText="🎵 Müzik Çalıyor";
+  } else if(adim===1){
     dosya = jingle;
-    bilgi.innerText = "🔔 Jingle...";
+    durum.innerText="🔔 Jingle";
   } else {
-    if(anonslar.length > 0){
+    if(anonslar.length>0){
       dosya = anonslar[Math.floor(Math.random()*anonslar.length)];
-      bilgi.innerText = "📢 Anons...";
+      durum.innerText="📢 Anons";
     } else {
       gec();
       return;
@@ -71,23 +125,30 @@ function cal(){
 
 function gec(){
   adim++;
-  if(adim > 2){
-    adim = 0;
+  if(adim>2){
+    adim=0;
     sira++;
-    if(sira >= muzikler.length){
+    if(sira>=muzikler.length){
       karistir(muzikler);
-      sira = 0;
+      sira=0;
     }
   }
   cal();
 }
 
 player.onended = gec;
-player.onerror = gec; // dosya bulunamazsa atla
+player.onerror = gec;
 
-btn.onclick = function(){
-  btn.style.display = "none";
-  cal();
+document.getElementById("play").onclick = function(){
+  if(player.src===""){
+    cal();
+  } else {
+    player.play();
+  }
+};
+
+document.getElementById("pause").onclick = function(){
+  player.pause();
 };
 </script>
 
