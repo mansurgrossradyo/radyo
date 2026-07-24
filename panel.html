@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Radyo Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Arial;background:#111;color:#fff;text-align:center;padding:40px}
+input,select,button{padding:12px;margin:10px;font-size:16px}
+button{background:#28a745;color:white;cursor:pointer;border:none;border-radius:5px}
+</style>
+</head>
+<body>
+
+<h1>🎛 RADYO PANEL</h1>
+
+<input type="text" id="title" placeholder="Şarkı adı">
+<select id="type">
+  <option value="music">Müzik</option>
+  <option value="jingle">Jingle</option>
+  <option value="anons">Anons</option>
+</select>
+<input type="file" id="file" accept="audio/mp3">
+<br>
+<button id="btn">📤 YÜKLE</button>
+<p id="msg"></p>
+
+<script>
+// ⚠️ BURAYA KENDİ BİLGİLERİNİ YAZ
+const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co/rest/v1/";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
+
+const client = supabase.createClient(PROJECT_URL, ANON_KEY);
+
+document.getElementById("btn").onclick = async () => {
+  const title = document.getElementById("title").value;
+  const type = document.getElementById("type").value;
+  const file = document.getElementById("file").files[0];
+  
+  if(!file || !title) return alert("Dosya ve ad gerekli");
+  
+  document.getElementById("msg").innerText = "Yükleniyor...";
+  
+  // Türkçe karakterleri temizle
+  const safeName = Date.now() + ".mp3";
+  
+  const {error: upErr} = await client.storage.from("radyo").upload(safeName, file);
+  if(upErr) {
+    console.error(upErr);
+    return alert("Storage hatası: " + upErr.message);
+  }
+  
+  const {data} = client.storage.from("radyo").getPublicUrl(safeName);
+  
+  const {error: dbErr} = await client.from("songs").insert({
+    title: title,
+    url: data.publicUrl,
+    type: type
+  });
+  
+  if(dbErr) {
+    console.error(dbErr);
+    return alert("DB hatası: " + dbErr.message);
+  }
+  
+  alert("✅ Başarıyla yüklendi!");
+  document.getElementById("msg").innerText = "";
+};
+</script>
+
+</body>
+</html>
