@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mansur Gross Radyo</title>
+<style>
+  body { background:#111; color:#fff; font-family:Arial; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; }
+  #baslat { font-size:40px; padding:30px 60px; cursor:pointer; background:#e91e63; color:#fff; border:none; border-radius:15px; }
+  #bilgi { margin-top:30px; font-size:22px; }
+</style>
+</head>
+<body>
+
+<button id="baslat">▶ RADYOYU BAŞLAT</button>
+<div id="bilgi"></div>
+<audio id="player"></audio>
+
+<script>
+// ==== DOSYA LİSTELERİ ====
+const muzikler = [
+  "muzik/muzik(1).mp3",
+  "muzik/muzik(2).mp3",
+  "muzik/muzik(3).mp3",
+  "muzik/muzik(4).mp3",
+  "muzik/muzik(5).mp3"
+];
+
+const jingle = "jingle/Mansur Gross jingıl.mp3";
+
+const anonslar = [
+  "anons/mansur 20-30 Haziran-1.mp3"
+];
+// =========================
+
+const player = document.getElementById("player");
+const bilgi = document.getElementById("bilgi");
+const btn = document.getElementById("baslat");
+
+let sira = 0;
+let adim = 0; // 0=muzik, 1=jingle, 2=anons
+
+function karistir(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+
+karistir(muzikler);
+
+function cal(){
+  let dosya = "";
+  if(adim === 0){
+    dosya = muzikler[sira];
+    bilgi.innerText = "🎵 Müzik çalıyor...";
+  } else if(adim === 1){
+    dosya = jingle;
+    bilgi.innerText = "🔔 Jingle...";
+  } else {
+    if(anonslar.length > 0){
+      dosya = anonslar[Math.floor(Math.random()*anonslar.length)];
+      bilgi.innerText = "📢 Anons...";
+    } else {
+      gec();
+      return;
+    }
+  }
+  player.src = encodeURI(dosya);
+  player.play();
+}
+
+function gec(){
+  adim++;
+  if(adim > 2){
+    adim = 0;
+    sira++;
+    if(sira >= muzikler.length){
+      karistir(muzikler);
+      sira = 0;
+    }
+  }
+  cal();
+}
+
+player.onended = gec;
+player.onerror = gec; // dosya bulunamazsa atla
+
+btn.onclick = function(){
+  btn.style.display = "none";
+  cal();
+};
+</script>
+
+</body>
+</html>
