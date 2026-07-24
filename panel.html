@@ -42,7 +42,7 @@ document.getElementById("btn").onclick = async () => {
   document.getElementById("msg").innerText = "Yükleniyor...";
   
   // Türkçe karakterleri temizle
-  const safeName = Date.now() + ".mp3";
+  const safeName = "uploads/" + Date.now() + ".mp3";
   
   const {error: upErr} = await client.storage.from("radyo").upload(safeName, file);
   if(upErr) {
