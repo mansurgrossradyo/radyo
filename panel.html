@@ -42,15 +42,9 @@ document.getElementById("btn").onclick = async () => {
   document.getElementById("msg").innerText = "Yükleniyor...";
   
   // Türkçe karakterleri temizle
-  const safeName = "uploads/" + Date.now() + ".mp3";
+  const safeName = Date.now() + ".mp3";
   
-  const { error: upErr } = await client
-  .storage
-  .from("radyo")
-  .upload(safeName, file, {
-    cacheControl: "3600",
-    upsert: false
-  });
+  const { error: upErr } = await client.storage.from("radyo").upload(safeName, file);
   if(upErr) {
     console.error(upErr);
     return alert("Storage hatası: " + upErr.message);
