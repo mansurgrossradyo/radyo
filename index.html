@@ -228,26 +228,133 @@ const client=supabase.createClient(PROJECT_URL,ANON_KEY);
 const player=document.getElementById("player");
 const durum=document.getElementById("durum");
 const siradakiEl=document.getElementById("siradaki");
-let muzikler=[],sira=0;
+
+let muzikler = [];
+let jingles = [];
+let anonslar = [];
+
+let sira = 0;
+let adim = 0;
+
+let calisiyor = false;
   
 let ezanSaatleri = {};
 let ezanModu = false;
 
 async function verileriYukle(){
- const {data}=await client.from("songs").select("*").eq("type","music");
- muzikler=data||[];
-}
 
+    const { data } = await client
+        .from("songs")
+        .select("*");
+
+    muzikler = (data || []).filter(x => x.type === "music");
+    jingles  = (data || []).filter(x => x.type === "jingle");
+    anonslar = (data || []).filter(x => x.type === "anons");
+
+    karistir(muzikler);
+
+}
+function karistir(dizi){
+
+    for(let i=dizi.length-1;i>0;i--){
+
+        const j=Math.floor(Math.random()*(i+1));
+
+        [dizi[i],dizi[j]]=[dizi[j],dizi[i]];
+
+    }
+
+}
+  
 function cal(){
- if(!muzikler.length)return;
- const aktif=muzikler[sira];
- player.src=aktif.url;
- player.play();
- durum.innerText="🎵 "+aktif.title;
- siradakiEl.innerText="Sıradaki: "+(muzikler[(sira+1)%muzikler.length]?.title||"-");
+
+    if(!muzikler.length) return;
+
+    let aktif;
+
+    if(adim===0){
+
+        aktif = muzikler[sira];
+
+        durum.innerText="🎵 "+(aktif.title || "Müzik");
+
+        siradakiEl.innerText="Sıradaki: "+(muzikler[(sira+1)%muzikler.length]?.title || "-");
+
+    }
+    else if(adim===1 && jingles.length){
+
+        aktif = jingles[Math.floor(Math.random()*jingles.length)];
+
+        durum.innerText="🔔 Jingle";
+
+    }
+    else if(adim===2 && anonslar.length){
+
+        aktif = anonslar[Math.floor(Math.random()*anonslar.length)];
+
+        durum.innerText="📢 Anons";
+
+    }
+    else{
+
+        gec();
+
+        return;
+
+    }
+
+    player.src = aktif.url;
+
+    player.play();
+
+    calisiyor = true;
+
 }
 
-player.onended=()=>{sira=(sira+1)%muzikler.length;cal();};
+function gec(){
+
+    while(true){
+
+        adim++;
+
+        if(adim > 2){
+
+            adim = 0;
+
+            sira++;
+
+            if(sira >= muzikler.length){
+
+                karistir(muzikler);
+
+                sira = 0;
+
+            }
+
+        }
+
+        // Müzik
+        if(adim === 0){
+            break;
+        }
+
+        // Jingle varsa
+        if(adim === 1 && jingles.length){
+            break;
+        }
+
+        // Anons varsa
+        if(adim === 2 && anonslar.length){
+            break;
+        }
+
+    }
+
+    cal();
+
+}
+
+player.onended = gec;
 document.getElementById("play").onclick=async()=>{if(!muzikler.length)await verileriYukle();cal();};
 document.getElementById("pause").onclick=()=>player.pause();
 document.getElementById("volume").oninput=e=>player.volume=e.target.value;
