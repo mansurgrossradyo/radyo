@@ -8,82 +8,297 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body {
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  align-items:center;
-  font-family:Arial, sans-serif;
-  color:white;
-  background: url("bg.jpg") no-repeat center center/cover;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
-#overlay {
-  width:100%;
-  background:rgba(0,0,0,0.75);
-  text-align:center;
-  padding:25px 0;
-}
-#baslik { font-size:38px; margin-bottom:5px; }
 
-#canli {
-  color:#00ff00;
-  font-weight:bold;
-  animation:blink 1.2s infinite;
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:url("bg.jpg") center center/cover no-repeat fixed;
+height:100vh;
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:flex-end;
+color:#fff;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(2px);
+z-index:-1;
+}
+
+#overlay{
+
+width:92%;
+max-width:1350px;
+
+margin-bottom:30px;
+
+background:rgba(20,20,20,.45);
+
+backdrop-filter:blur(18px);
+
+border:1px solid rgba(255,255,255,.08);
+
+border-radius:24px;
+
+padding:30px;
+
+box-shadow:0 15px 60px rgba(0,0,0,.45);
+
+}
+
+#baslik{
+
+font-size:54px;
+
+font-weight:bold;
+
+letter-spacing:1px;
+
+margin-bottom:5px;
+
+}
+
+#canli{
+
+color:#22ff55;
+
+font-size:22px;
+
+font-weight:bold;
+
+margin-bottom:25px;
+
+animation:blink 1s infinite;
+
 }
 
 @keyframes blink{
-  0%{opacity:1;}
-  50%{opacity:0.3;}
-  100%{opacity:1;}
+
+50%{
+
+opacity:.4;
+
 }
 
-#durum { font-size:26px; margin-top:12px; min-height:30px; font-weight:bold; }
-#siradaki { font-size:16px; opacity:0.8; margin-top:6px; }
-
-#ezanBilgi {
-  font-size:15px;
-  margin-top:12px;
-  background:rgba(255,255,255,0.12);
-  display:inline-block;
-  padding:8px 16px;
-  border-radius:8px;
 }
 
-button {
-  font-size:20px;
-  padding:10px 28px;
-  margin:8px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-#play { background:#28a745; color:white; }
-#pause { background:#dc3545; color:white; }
+button{
 
-#volumeBox { margin-top:12px; }
-#volume { width:220px; }
+border:none;
+
+cursor:pointer;
+
+border-radius:15px;
+
+padding:18px 34px;
+
+font-size:22px;
+
+font-weight:bold;
+
+transition:.25s;
+
+}
+
+button:hover{
+
+transform:translateY(-2px);
+
+}
+
+#play{
+
+background:#ffc107;
+
+color:#111;
+
+}
+
+#pause{
+
+background:#ff3d4f;
+
+color:#fff;
+
+margin-left:15px;
+
+}
+
+#durum{
+
+font-size:40px;
+
+font-weight:bold;
+
+margin-top:30px;
+
+}
+
+#siradaki{
+
+margin-top:10px;
+
+font-size:22px;
+
+opacity:.8;
+
+}
+
+#volumeBox{
+
+margin-top:25px;
+
+font-size:18px;
+
+}
+
+#volume{
+
+width:320px;
+
+accent-color:#ffc107;
+
+}
+
+#ezanBilgi{
+
+position:absolute;
+
+right:40px;
+
+top:30px;
+
+background:#111827;
+
+padding:15px 22px;
+
+border-radius:15px;
+
+font-size:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
 
 #istekBolum{
-  margin-top:20px;
+
+margin-top:35px;
+
+background:rgba(255,255,255,.05);
+
+padding:20px;
+
+border-radius:18px;
+
 }
+
+#istekBolum h3{
+
+margin-bottom:15px;
+
+font-size:22px;
+
+}
+
 #istekBolum input{
-  padding:8px;
-  margin:4px;
-  border-radius:6px;
-  border:none;
+
+width:250px;
+
+padding:12px;
+
+border:none;
+
+border-radius:10px;
+
+margin-right:8px;
+
+background:#fff;
+
 }
+
 #istekBolum button{
-  background:#ffc107;
-  color:black;
+
+background:#ffc107;
+
+color:#111;
+
+padding:12px 28px;
+
 }
 
-.ezanMod { background:#1b5e20 !important; }
+#istekDurum{
 
-@media (max-width:768px){
-  #baslik { font-size:24px; }
-  button { width:80%; font-size:18px; }
+margin-top:10px;
+
+}
+
+.ezanMod{
+
+background:#1d4724 !important;
+
+}
+
+@media(max-width:900px){
+
+#overlay{
+
+width:95%;
+
+padding:20px;
+
+}
+
+#baslik{
+
+font-size:32px;
+
+}
+
+#durum{
+
+font-size:28px;
+
+}
+
+#ezanBilgi{
+
+position:relative;
+
+top:0;
+
+right:0;
+
+margin-bottom:20px;
+
+display:inline-block;
+
+}
+
+#istekBolum input{
+
+width:100%;
+
+margin-bottom:10px;
+
+}
+
+button{
+
+width:100%;
+
+margin-top:10px;
+
+}
+
 }
 </style>
 </head>
