@@ -252,6 +252,179 @@ button:hover{transform:translateY(-2px)}
   #rightWidgets{flex-direction:column;align-items:flex-end}
   #clockBox{font-size:26px}
 }
+
+/* =========================================
+   MOBİL TELEFON DÜZENİ
+   Bu kodu style bölümünün EN ALTINA ekle
+========================================= */
+@media (max-width: 600px){
+
+  body{
+    height:auto;
+    min-height:100svh;
+    overflow-x:hidden;
+    overflow-y:auto;
+    align-items:flex-start;
+    padding:12px 0;
+    background-attachment:scroll;
+  }
+
+  #overlay{
+    width:calc(100% - 24px);
+    margin:12px;
+    padding:16px;
+    border-radius:22px;
+  }
+
+  /* Üst başlık, hava ve saat */
+  .topBar{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+    margin-bottom:16px;
+  }
+
+  #baslik{
+    font-size:21px;
+    line-height:1.2;
+  }
+
+  #canli{
+    font-size:14px;
+    margin-top:5px;
+    margin-bottom:0;
+  }
+
+  #rightWidgets{
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    justify-content:flex-start;
+    align-items:stretch;
+    gap:10px;
+  }
+
+  #weatherBox{
+    flex:1;
+    padding:10px 12px;
+    font-size:12px;
+    border-radius:13px;
+  }
+
+  #clockBox{
+    min-width:105px;
+    padding:10px 12px;
+    font-size:25px;
+    border-radius:13px;
+  }
+
+  /* Ezan kutusunu görünmez yapar.
+     Ezan vakti müziği durdurma sistemi çalışmaya devam eder. */
+  #ezanBilgi{
+    display:none;
+  }
+
+  /* Kontrol kartı */
+  .mainCard{
+    padding:16px;
+    border-radius:18px;
+    margin-bottom:14px;
+  }
+
+  .controlRow{
+    display:grid;
+    grid-template-columns:1fr 60px;
+    gap:12px;
+    align-items:center;
+  }
+
+  button{
+    font-size:16px;
+    padding:15px 12px;
+    margin:0;
+  }
+
+  #play{
+    width:100%;
+    border-radius:15px;
+    white-space:nowrap;
+  }
+
+  #pause{
+    width:60px;
+    height:52px;
+    padding:0;
+    margin:0;
+    border-radius:15px;
+    font-size:18px;
+  }
+
+  #volumeBox{
+    grid-column:1 / -1;
+    width:100%;
+    margin-top:2px;
+    font-size:15px;
+  }
+
+  #volume{
+    width:calc(100% - 48px);
+  }
+
+  /* Şarkı adı alanı */
+  .songRow{
+    margin-top:18px;
+  }
+
+  #durum{
+    font-size:24px;
+    line-height:1.25;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  #siradaki{
+    margin-top:8px;
+    font-size:15px;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+  }
+
+  /* İstek formu */
+  #istekBolum{
+    margin-top:14px;
+    padding:16px;
+    border-radius:18px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+
+  #istekBolum h3{
+    font-size:16px;
+    margin:0 0 2px 0;
+  }
+
+  #istekBolum input{
+    width:100%;
+    height:46px;
+    padding:10px 12px;
+    margin:0;
+    font-size:15px;
+  }
+
+  #istekBolum button{
+    width:130px;
+    padding:12px 18px;
+    font-size:16px;
+  }
+
+  #istekDurum{
+    margin-top:0;
+    font-size:14px;
+  }
+}
+  
 </style>
 </head>
 
