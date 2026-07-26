@@ -210,6 +210,19 @@ function gec(){
 
 player.onended = gec;
 
+/* ---------- BUTONLAR ---------- */
+
+document.getElementById("play").onclick = async function(){
+  if(muzikler.length === 0){
+    await verileriYukle();
+  }
+  cal();
+};
+
+document.getElementById("pause").onclick = function(){
+  player.pause();
+};
+
 /* ---------- SES AYARI ---------- */
 document.getElementById("volume").oninput = function(){
   player.volume = this.value;
