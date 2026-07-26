@@ -40,10 +40,10 @@ body::before{
 /* ===== ÜST BAR ===== */
 .topBar{
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   align-items:center;
-  gap:20px;
-  flex-wrap:wrap;
+  flex-direction:column;
+  text-align:center;
   margin-bottom:25px;
 }
 #baslik{font-size:30px;font-weight:700}
@@ -178,6 +178,7 @@ body::before{
 .controlRow{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:20px;
   flex-wrap:wrap;
 }
@@ -548,6 +549,13 @@ button{
 #panelContainer{
   gap:20px !important;
 }
+
+#rightWidgets{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-left:auto;
+}  
   
 </style>
 </head>
@@ -561,6 +569,24 @@ button{
       <div id="baslik">📻 DJ‑CIXO MANSUR RADYO</div>
       <div id="canli">🔴 CANLI YAYIN</div>
     </div>
+
+    
+  <div class="mainCard">
+    <div class="controlRow">
+      <button id="play">▶ DİNLEMEYE BAŞLA</button>
+      <button id="pause">■</button>
+
+      <div id="volumeBox">
+        🔊
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      </div>
+    </div>
+
+    <div class="songRow">
+      <div id="durum"></div>
+      <div id="siradaki"></div>
+    </div>
+  </div>
 
     <div id="rightWidgets">
       <div id="weatherBox">
@@ -577,23 +603,6 @@ button{
         <div id="clockDate">26.07.2026</div>
         <div id="clockDay">Pazar</div>
     </div>
-    </div>
-  </div>
-
-  <div class="mainCard">
-    <div class="controlRow">
-      <button id="play">▶ DİNLEMEYE BAŞLA</button>
-      <button id="pause">■</button>
-
-      <div id="volumeBox">
-        🔊
-        <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-      </div>
-    </div>
-
-    <div class="songRow">
-      <div id="durum"></div>
-      <div id="siradaki"></div>
     </div>
   </div>
 
