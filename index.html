@@ -122,10 +122,49 @@ body::before{
 }
 
 #weatherBox{
-  background:#1f2937;
-  padding:15px 20px;
-  border-radius:18px;
-  font-size:14px;
+
+    width:170px;
+
+    padding:14px;
+
+    border-radius:18px;
+
+    background:linear-gradient(135deg,#182848,#4b6cb7);
+
+    color:white;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+
+}
+
+#weatherCity{
+
+    font-size:15px;
+
+    opacity:.9;
+
+}
+
+#weatherTemp{
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    margin-top:6px;
+
+}
+
+#weatherDesc{
+
+    margin-top:5px;
+
+    font-size:14px;
+
+    opacity:.85;
+
 }
 
 /* ===== KONTROL ALANI ===== */
@@ -227,7 +266,15 @@ button:hover{transform:translateY(-2px)}
     </div>
 
     <div id="rightWidgets">
-         <div id="weatherBox">🌤 Yükleniyor...</div>
+      <div id="weatherBox">
+      
+          <div id="weatherCity">📍 Diyarbakır</div>
+      
+          <div id="weatherTemp">--°C</div>
+      
+          <div id="weatherDesc">Yükleniyor...</div>
+      
+      </div>
     <div id="clockBox">
         <div id="clockTime">00:00</div>
         <div id="clockDate">26.07.2026</div>
@@ -437,8 +484,23 @@ setInterval(saatGuncelle,1000); saatGuncelle();
 async function havaDurumu(){
  const res=await fetch("https://api.open-meteo.com/v1/forecast?latitude=37.9144&longitude=40.2306&current_weather=true");
  const j=await res.json();
- document.getElementById("weatherBox").innerHTML=
-   "🌤 Diyarbakır<br>"+j.current_weather.temperature+"°C";
+ const sicaklik = j.current_weather.temperature;
+
+const kod = j.current_weather.weathercode;
+
+let aciklama = "Açık";
+
+if(kod>=1 && kod<=3) aciklama="Parçalı Bulutlu";
+if(kod>=45 && kod<=48) aciklama="Sisli";
+if(kod>=51 && kod<=67) aciklama="Yağmurlu";
+if(kod>=71 && kod<=77) aciklama="Karlı";
+if(kod>=95) aciklama="Fırtına";
+
+document.getElementById("weatherTemp").innerText =
+sicaklik+"°C";
+
+document.getElementById("weatherDesc").innerText =
+aciklama;
 }
 havaDurumu();
 
