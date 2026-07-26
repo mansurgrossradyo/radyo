@@ -229,6 +229,9 @@ const player=document.getElementById("player");
 const durum=document.getElementById("durum");
 const siradakiEl=document.getElementById("siradaki");
 let muzikler=[],sira=0;
+  
+let ezanSaatleri = {};
+let ezanModu = false;
 
 async function verileriYukle(){
  const {data}=await client.from("songs").select("*").eq("type","music");
@@ -267,18 +270,63 @@ async function havaDurumu(){
 }
 havaDurumu();
 
+ezan();
+
+setInterval(ezanKontrol,1000);
+  
 /* ===== EZAN SAATİ ===== */
 async function ezan(){
- const r=await fetch("https://api.aladhan.com/v1/timingsByCity?city=Diyarbakir&country=Turkey&method=13");
- const j=await r.json();
- const t=j.data.timings;
-  "🕌 Sabah "+t.Fajr.slice(0,5)+
-  " • Öğle "+t.Dhuhr.slice(0,5)+
-  " • İkindi "+t.Asr.slice(0,5)+
-  " • Akşam "+t.Maghrib.slice(0,5)+
-  " • Yatsı "+t.Isha.slice(0,5);
-}
 
+    const r = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Diyarbakir&country=Turkey&method=13");
+
+    const j = await r.json();
+
+    const t = j.data.timings;
+
+    ezanSaatleri = {
+        Fajr: t.Fajr.slice(0,5),
+        Dhuhr: t.Dhuhr.slice(0,5),
+        Asr: t.Asr.slice(0,5),
+        Maghrib: t.Maghrib.slice(0,5),
+        Isha: t.Isha.slice(0,5)
+    };
+
+    document.getElementById("weatherBox").innerHTML =
+    "🕌 Sabah " + ezanSaatleri.Fajr +
+    "<br>🌙 Akşam " + ezanSaatleri.Maghrib;
+
+}
+function ezanKontrol(){
+
+    if(ezanModu) return;
+
+    const simdi = new Date();
+
+    const saat =
+        String(simdi.getHours()).padStart(2,"0") + ":" +
+        String(simdi.getMinutes()).padStart(2,"0");
+
+    if(Object.values(ezanSaatleri).includes(saat)){
+
+        ezanModu = true;
+
+        player.pause();
+
+        durum.innerText = "🕌 EZAN VAKTİ - Yayın durduruldu";
+
+        setTimeout(function(){
+
+            ezanModu = false;
+
+            durum.innerText = "";
+
+            player.play();
+
+        }, 5 * 60 * 1000); // 5 dakika
+
+    }
+
+}
 /* ===== İSTEK ===== */
 async function istekGonder(){
  const ad=document.getElementById("istekAd").value.trim();
@@ -287,6 +335,12 @@ async function istekGonder(){
  await client.from("requests").insert({name:ad,message:mesaj});
  document.getElementById("istekDurum").innerText="✅ Gönderildi";
 }
+havaDurumu();
+
+ezan();
+
+setInterval(ezanKontrol,1000);
+  
 </script>
 </body>
 </html>
