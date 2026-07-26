@@ -191,11 +191,25 @@ document.getElementById("btn").addEventListener("click", async () => {
 
   const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
 
-  await supa.from("songs").insert({
-    title,
-    url: data.publicUrl,
-    type
-  });
+  const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
+
+// 🔎 Aynı şarkı var mı kontrol et
+const { data: mevcut } = await supa
+  .from("songs")
+  .select("id")
+  .ilike("title", title);
+
+if (mevcut && mevcut.length > 0) {
+  alert("⚠ Bu şarkı zaten ekli!");
+  return;
+}
+
+// ✅ Yoksa ekle
+await supa.from("songs").insert({
+  title,
+  url: data.publicUrl,
+  type
+});
 
   alert("✅ Yüklendi");
   listele();
