@@ -217,6 +217,25 @@ button{
   gap:15px;
   align-items:center;
 }
+
+.controlRow{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+#rightWidgets{
+  margin-left:auto;
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+
+.songRow{
+  margin-top:18px;
+}
+  
   
 </style>
 </head>
@@ -234,6 +253,7 @@ button{
     
   <div class="mainCard">
 
+  <!-- ÜST SATIR -->
   <div class="controlRow">
 
     <button id="play">▶ DİNLEMEYE BAŞLA</button>
@@ -250,15 +270,8 @@ button{
              value="1">
     </div>
 
-    <!-- ŞARKI BLOĞU -->
-    <div class="songRow">
-      <div id="durum"></div>
-      <div id="siradaki"></div>
-    </div>
-
     <!-- HAVA + SAAT -->
     <div id="rightWidgets">
-
       <div id="weatherBox">
         <div id="weatherCity">📍 Diyarbakır</div>
         <div id="weatherTemp">--°C</div>
@@ -270,9 +283,14 @@ button{
         <div id="clockDate">26.07.2026</div>
         <div id="clockDay">Pazar</div>
       </div>
-
     </div>
 
+  </div>
+
+  <!-- ALT SATIR (ŞARKI) -->
+  <div class="songRow">
+    <div id="durum"></div>
+    <div id="siradaki"></div>
   </div>
 
 </div>
