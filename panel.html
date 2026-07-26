@@ -33,7 +33,6 @@ button {
   padding: 6px 12px;
 }
 
-/* === PANEL GRID === */
 #panelContainer{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -62,7 +61,6 @@ button {
   align-items: center;
 }
 
-/* LOGIN */
 #loginBox{
   max-width:400px;
   margin:100px auto;
@@ -124,15 +122,14 @@ const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 const supa = supabase.createClient(PROJECT_URL, ANON_KEY);
 
-/* ================= OTOMATİK ÇIKIŞ ================= */
-
-const PANEL_OTURUM_DK = 60; // 60 dakika sonra çıkış
+/* ============ OTOMATİK ÇIKIŞ AYARI ============ */
+const PANEL_OTURUM_DK = 60; // 60 dk sonra otomatik çıkış
 const PANEL_OTURUM_MS = PANEL_OTURUM_DK * 60 * 1000;
 const GIRIS_ZAMANI_KEY = "radyo_panel_giris_zamani";
-
 let otoCikisZamani = null;
+/* ============================================== */
 
-/* ================= AUTH + OTOMATİK ÇIKIŞ ================= */
+/* ================= AUTH ================= */
 
 async function kontrolEt(){
 
@@ -145,20 +142,14 @@ async function kontrolEt(){
 
   if(data.session){
 
-    let girisZamani = Number(
-      localStorage.getItem(GIRIS_ZAMANI_KEY)
-    );
+    let girisZamani = Number(localStorage.getItem(GIRIS_ZAMANI_KEY));
 
-    // Eski oturum varsa süreyi şimdi başlat
     if(!girisZamani){
       girisZamani = Date.now();
-      localStorage.setItem(
-        GIRIS_ZAMANI_KEY,
-        girisZamani.toString()
-      );
+      localStorage.setItem(GIRIS_ZAMANI_KEY, girisZamani.toString());
     }
 
-    // Süre dolmuşsa çıkış yap
+    // Süre dolmuşsa çık
     if(Date.now() - girisZamani >= PANEL_OTURUM_MS){
       await otomatikCikis();
       return;
@@ -170,26 +161,17 @@ async function kontrolEt(){
     listele();
     istekleriGetir();
 
-    // Kalan süre kadar sonra otomatik çıkış
+    // Kalan süre sonunda otomatik çıkış
     clearTimeout(otoCikisZamani);
+    const kalanSure = PANEL_OTURUM_MS - (Date.now() - girisZamani);
+    otoCikisZamani = setTimeout(otomatikCikis, kalanSure);
 
-    const kalanSure =
-      PANEL_OTURUM_MS - (Date.now() - girisZamani);
-
-    otoCikisZamani = setTimeout(
-      otomatikCikis,
-      kalanSure
-    );
-
-  }else{
-
+  } else {
     clearTimeout(otoCikisZamani);
-
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("panelContent").style.display = "none";
   }
 }
-
 
 async function girisYap(){
 
@@ -197,8 +179,7 @@ async function girisYap(){
   const password = document.getElementById("password").value;
 
   if(!email || !password){
-    document.getElementById("loginMsg").innerText =
-      "Email ve şifre yazın";
+    document.getElementById("loginMsg").innerText = "Email ve şifre yazın";
     return;
   }
 
@@ -208,53 +189,31 @@ async function girisYap(){
   });
 
   if(error){
-    document.getElementById("loginMsg").innerText =
-      "Email veya şifre hatalı";
+    document.getElementById("loginMsg").innerText = "Email veya şifre hatalı";
     return;
   }
 
-  // Giriş zamanını kaydet
-  localStorage.setItem(
-    GIRIS_ZAMANI_KEY,
-    Date.now().toString()
-  );
-
+  localStorage.setItem(GIRIS_ZAMANI_KEY, Date.now().toString());
   document.getElementById("loginMsg").innerText = "";
 
-setInterval(istekleriGetir, 10000);
+  kontrolEt();
+}
 
-// Otomatik çıkış kontrolü
-setInterval(() => {
-
-  const girisZamani = Number(
-    localStorage.getItem(GIRIS_ZAMANI_KEY)
-  );
-
-  if(
-    girisZamani &&
-    Date.now() - girisZamani >= PANEL_OTURUM_MS
-  ){
-    otomatikCikis();
-  }
-
-}, 30000);
-
-kontrolEt();
-  
+/* ✅ ÇIKIŞ BUTONU (eksikti, eklendi) */
+async function cikisYap(){
+  clearTimeout(otoCikisZamani);
+  localStorage.removeItem(GIRIS_ZAMANI_KEY);
+  await supa.auth.signOut();
   kontrolEt();
 }
 
 async function otomatikCikis(){
-
   clearTimeout(otoCikisZamani);
-
   localStorage.removeItem(GIRIS_ZAMANI_KEY);
-
   await supa.auth.signOut();
 
   document.getElementById("panelContent").style.display = "none";
   document.getElementById("loginBox").style.display = "block";
-
   document.getElementById("loginMsg").innerText =
     "⏰ Güvenlik nedeniyle oturum kapatıldı. Tekrar giriş yapın.";
 }
@@ -266,6 +225,7 @@ document.getElementById("btn").addEventListener("click", async () => {
   const fileInput = document.getElementById("file");
   const type = document.getElementById("type").value;
   const titleInput = document.getElementById("title").value.trim();
+  const msg = document.getElementById("msg");
 
   if (!fileInput.files.length) {
     alert("Dosya seç");
@@ -275,6 +235,21 @@ document.getElementById("btn").addEventListener("click", async () => {
   const file = fileInput.files[0];
   const title = titleInput === "" ? file.name.replace(".mp3","") : titleInput;
 
+  // 🔎 Aynı şarkı var mı? (yüklemeden ÖNCE kontrol)
+  const { data: mevcut } = await supa
+    .from("songs")
+    .select("id")
+    .ilike("title", title);
+
+  if (mevcut && mevcut.length > 0) {
+    msg.innerText = "⚠ Bu şarkı zaten ekli!";
+    msg.style.color = "#ff5555";
+    return;
+  }
+
+  msg.innerText = "Yükleniyor...";
+  msg.style.color = "#fff";
+
   const filePath = "uploads/" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "_");
 
   const { error: uploadError } = await supa.storage
@@ -282,31 +257,31 @@ document.getElementById("btn").addEventListener("click", async () => {
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
-    alert("Storage hatası");
+    msg.innerText = "Storage hatası";
+    msg.style.color = "#ff5555";
     return;
   }
 
-    const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
+  const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
 
-// 🔎 Aynı şarkı var mı kontrol et
-const { data: mevcut } = await supa
-  .from("songs")
-  .select("id")
-  .ilike("title", title);
+  const { error: dbError } = await supa.from("songs").insert({
+    title,
+    url: data.publicUrl,
+    type
+  });
 
-if (mevcut && mevcut.length > 0) {
-  alert("⚠ Bu şarkı zaten ekli!");
-  return;
-}
+  if (dbError) {
+    msg.innerText = "DB hatası: " + dbError.message;
+    msg.style.color = "#ff5555";
+    return;
+  }
 
-// ✅ Yoksa ekle
-await supa.from("songs").insert({
-  title,
-  url: data.publicUrl,
-  type
-});
+  msg.innerText = "✅ Yüklendi";
+  msg.style.color = "#28ff63";
 
-  alert("✅ Yüklendi");
+  document.getElementById("title").value = "";
+  document.getElementById("file").value = "";
+
   listele();
 });
 
@@ -361,7 +336,17 @@ async function istekSil(id){
   istekleriGetir();
 }
 
+/* ================= BAŞLAT ================= */
+
 setInterval(istekleriGetir, 10000);
+
+// 30 sn'de bir oturum süresini kontrol et
+setInterval(() => {
+  const girisZamani = Number(localStorage.getItem(GIRIS_ZAMANI_KEY));
+  if (girisZamani && Date.now() - girisZamani >= PANEL_OTURUM_MS) {
+    otomatikCikis();
+  }
+}, 30000);
 
 kontrolEt();
 </script>
