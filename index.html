@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mansur Gross Radyo</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -9,7 +10,7 @@
 <style>
 body {
   margin:0;
-  height:100vh;
+  min-height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:flex-end;
@@ -18,36 +19,40 @@ body {
   color:white;
   background: url("bg.jpg") no-repeat center center/cover;
 }
-
 #overlay {
   width:100%;
-  background:rgba(0,0,0,0.65);
+  background:rgba(0,0,0,0.70);
   text-align:center;
-  padding:30px 0;
+  padding:25px 0;
 }
-
-#baslik {
-  font-size:40px;
-  margin-bottom:15px;
+#baslik { font-size:38px; margin-bottom:10px; }
+#durum { font-size:22px; margin-top:12px; min-height:30px; }
+#siradaki { font-size:16px; opacity:0.8; margin-top:6px; }
+#ezanBilgi {
+  font-size:15px;
+  margin-top:12px;
+  background:rgba(255,255,255,0.12);
+  display:inline-block;
+  padding:8px 16px;
+  border-radius:8px;
 }
-
-#durum {
-  font-size:22px;
-  margin-top:15px;
-  min-height:30px;
-}
-
 button {
-  font-size:24px;
-  padding:12px 35px;
-  margin:10px;
+  font-size:22px;
+  padding:12px 32px;
+  margin:8px;
   border:none;
   border-radius:10px;
   cursor:pointer;
 }
-
 #play { background:#28a745; color:white; }
 #pause { background:#dc3545; color:white; }
+#volume { width:220px; margin-top:14px; }
+.ezanMod { background:#1b5e20 !important; }
+
+@media (max-width:768px){
+  #baslik { font-size:24px; }
+  button { width:80%; font-size:20px; }
+}
 </style>
 </head>
 
@@ -59,61 +64,79 @@ button {
   <button id="play">▶ BAŞLAT</button>
   <button id="pause">⏸ DURDUR</button>
 
+  <div><input type="range" id="volume" min="0" max="1" step="0.01" value="1"></div>
+
   <div id="durum"></div>
+  <div id="siradaki"></div>
+  <div id="ezanBilgi">🕌 Ezan saatleri yükleniyor...</div>
 </div>
 
 <audio id="player"></audio>
 
 <script>
+/* ================= AYARLAR ================= */
 const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
-const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";  // 🔴 BURAYA KENDİ KEYİNİ YAZ
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
+
+const SEHIR    = "Mardin";      // 🔴 KENDİ ŞEHRİNİ YAZ
+const ULKE     = "Turkey";
+const METHOD   = 13;            // 13 = Diyanet
+const EZAN_SURESI_DK = 6;       // Ezan boyunca susma süresi (dakika)
+const ONCE_DK  = 0;             // Ezandan kaç dk önce sussun (0 = tam vakitte)
+/* =========================================== */
 
 const client = supabase.createClient(PROJECT_URL, ANON_KEY);
 
-const player = document.getElementById("player");
-const durum = document.getElementById("durum");
+const player     = document.getElementById("player");
+const durum      = document.getElementById("durum");
+const siradakiEl = document.getElementById("siradaki");
+const ezanBilgi  = document.getElementById("ezanBilgi");
+const overlay    = document.getElementById("overlay");
 
-let muzikler = [];
-let jingles = [];
-let anonslar = [];
+let muzikler = [], jingles = [], anonslar = [];
+let sira = 0, adim = 0;
+let calisiyor = false;
 
-let sira = 0;
-let adim = 0;
+let ezanSaatleri = [];      // ["04:45", ...]
+let ezanAdlari   = {};      // {"04:45":"Sabah"}
+let ezanModu     = false;
+let ezanBitisTS  = 0;
+let sonEzanGun   = "";
 
+/* ---------- YARDIMCI ---------- */
 function karistir(a){
   for(let i=a.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
 }
+function saatStr(d){
+  return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+}
 
+/* ---------- VERİ ---------- */
 async function verileriYukle(){
   const { data, error } = await client.from("songs").select("*");
-
-  if(error){
-    console.error(error);
-    durum.innerText = "Veri hatası";
-    return;
-  }
+  if(error){ console.error(error); durum.innerText="Veri hatası"; return; }
 
   muzikler = data.filter(x => x.type === "music");
-  jingles = data.filter(x => x.type === "jingle");
+  jingles  = data.filter(x => x.type === "jingle");
   anonslar = data.filter(x => x.type === "anons");
-
   karistir(muzikler);
 }
 
+/* ---------- ÇALMA ---------- */
 function cal(){
-  if(muzikler.length === 0){
-    durum.innerText = "Müzik yok";
-    return;
-  }
+  if(ezanModu) return;                 // ezan varken çalma
+  if(muzikler.length === 0){ durum.innerText = "Müzik yok"; return; }
 
   let url = "";
 
   if(adim === 0){
-    url = muzikler[sira].url;
-    durum.innerText = "🎵 Müzik Çalıyor";
+    const aktif = muzikler[sira];
+    url = aktif.url;
+    durum.innerText = "🎵 " + (aktif.title || "Müzik");
+    siradakiEl.innerText = "Sıradaki: " + (muzikler[(sira+1)%muzikler.length].title || "-");
   }
   else if(adim === 1 && jingles.length > 0){
     url = jingles[Math.floor(Math.random()*jingles.length)].url;
@@ -123,40 +146,122 @@ function cal(){
     url = anonslar[Math.floor(Math.random()*anonslar.length)].url;
     durum.innerText = "📢 Anons";
   }
-  else{
-    gec();
-    return;
-  }
+  else { gec(); return; }
 
   player.src = url;
-  player.play();
+  player.play().catch(()=>{});
+  calisiyor = true;
 }
 
 function gec(){
+  if(ezanModu) return;
   adim++;
   if(adim > 2){
     adim = 0;
     sira++;
-    if(sira >= muzikler.length){
-      karistir(muzikler);
-      sira = 0;
-    }
+    if(sira >= muzikler.length){ karistir(muzikler); sira = 0; }
   }
   cal();
 }
 
 player.onended = gec;
-player.onerror = gec;
+player.onerror = () => { if(!ezanModu) setTimeout(gec, 800); };
 
-document.getElementById("play").onclick = async function(){
-  if(muzikler.length === 0){
-    await verileriYukle();
+/* ---------- EZAN SAATLERİ (API) ---------- */
+async function ezanSaatleriniAl(){
+  try{
+    const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(SEHIR)}&country=${encodeURIComponent(ULKE)}&method=${METHOD}`;
+    const res = await fetch(url);
+    const j = await res.json();
+    const t = j.data.timings;
+
+    const map = {
+      "Sabah": t.Fajr, "Öğle": t.Dhuhr, "İkindi": t.Asr,
+      "Akşam": t.Maghrib, "Yatsı": t.Isha
+    };
+
+    ezanSaatleri = [];
+    ezanAdlari = {};
+
+    for(const ad in map){
+      let s = map[ad].slice(0,5);
+      if(ONCE_DK > 0){
+        const [h,m] = s.split(":").map(Number);
+        const d = new Date(); d.setHours(h, m - ONCE_DK, 0, 0);
+        s = saatStr(d);
+      }
+      ezanSaatleri.push(s);
+      ezanAdlari[s] = ad;
+    }
+
+    sonEzanGun = new Date().toDateString();
+    ezanBilgi.innerText = "🕌 " + SEHIR + " → " +
+      Object.entries(ezanAdlari).map(([s,a]) => a+" "+s).join("  •  ");
+
+  }catch(e){
+    console.error(e);
+    ezanBilgi.innerText = "🕌 Ezan saatleri alınamadı (yedek liste kullanılıyor)";
+    // Yedek sabit liste
+    ezanSaatleri = ["04:45","13:10","17:05","20:30","22:00"];
+    ezanAdlari = {"04:45":"Sabah","13:10":"Öğle","17:05":"İkindi","20:30":"Akşam","22:00":"Yatsı"};
   }
+}
+
+/* ---------- EZAN KONTROL ---------- */
+function ezanKontrol(){
+  const now = new Date();
+
+  // Gün değiştiyse saatleri yenile
+  if(sonEzanGun && now.toDateString() !== sonEzanGun){
+    ezanSaatleriniAl();
+  }
+
+  // Ezan bitişi
+  if(ezanModu){
+    if(Date.now() >= ezanBitisTS){
+      ezanModu = false;
+      overlay.classList.remove("ezanMod");
+      durum.innerText = "🎵 Yayın devam ediyor...";
+      if(calisiyor) player.play().catch(()=>{});
+    }else{
+      const kalan = Math.ceil((ezanBitisTS - Date.now())/1000);
+      const dk = Math.floor(kalan/60), sn = kalan%60;
+      durum.innerText = "🕌 EZAN VAKTİ — yayın duraklatıldı (" + dk + ":" + String(sn).padStart(2,"0") + ")";
+    }
+    return;
+  }
+
+  // Ezan başlangıcı
+  const s = saatStr(now);
+  if(ezanSaatleri.includes(s)){
+    ezanModu = true;
+    ezanBitisTS = Date.now() + EZAN_SURESI_DK*60*1000;
+    overlay.classList.add("ezanMod");
+    player.pause();   // kaldığı yerde durur, currentTime korunur
+    durum.innerText = "🕌 " + (ezanAdlari[s]||"") + " EZANI — yayın duraklatıldı";
+    siradakiEl.innerText = "";
+  }
+}
+
+setInterval(ezanKontrol, 1000);
+ezanSaatleriniAl();
+
+/* ---------- BUTONLAR ---------- */
+document.getElementById("play").onclick = async function(){
+  if(muzikler.length === 0) await verileriYukle();
+  if(ezanModu){ durum.innerText = "🕌 Ezan bitince otomatik başlayacak"; calisiyor = true; return; }
+  if(player.src && player.paused && player.currentTime > 0){ player.play(); calisiyor = true; return; }
   cal();
 };
 
 document.getElementById("pause").onclick = function(){
   player.pause();
+  calisiyor = false;
+  durum.innerText = "⏸ Durduruldu";
+};
+
+document.getElementById("volume").oninput = function(){
+  player.volume = this.value;
 };
 </script>
 
