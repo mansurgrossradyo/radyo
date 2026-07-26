@@ -300,35 +300,128 @@ margin-top:10px;
 }
 
 }
+
+.topBar{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:flex-start;
+
+margin-bottom:25px;
+
+}
+
+.playerCard{
+
+background:rgba(255,255,255,.05);
+
+padding:20px;
+
+border-radius:18px;
+
+margin-bottom:20px;
+
+}
+
+.songCard{
+
+background:rgba(255,255,255,.05);
+
+padding:20px;
+
+border-radius:18px;
+
+margin-bottom:20px;
+
+}
+
+.buttons{
+
+display:flex;
+
+gap:15px;
+
+align-items:center;
+
+margin-bottom:15px;
+
+}
 </style>
 </head>
 
 <body>
 
 <div id="overlay">
-  <div id="baslik">📻 DJ-CIXO MANSUR RADYO</div>
-  <div id="canli">🔴 CANLI YAYIN</div>
+  <div class="topBar">
 
-  <button id="play">▶ BAŞLAT</button>
-  <button id="pause">⏸ DURDUR</button>
+    <div>
+        <div id="baslik">📻 DJ-CIXO MANSUR RADYO</div>
+        <div id="canli">🔴 CANLI YAYIN</div>
+    </div>
 
-  <div id="volumeBox">
-    🔊 Ses:
-    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-  </div>
+    <div id="ezanBilgi">
+        🕌 Yükleniyor...
+    </div>
 
-  <div id="durum"></div>
-  <div id="siradaki"></div>
-  <div id="ezanBilgi">🕌 Ezan saatleri yükleniyor...</div>
+</div>
 
-  <!-- ✅ İSTEK PARÇA -->
-  <div id="istekBolum">
-    <h3>🎵 RADYODA ÇALMASINI İSTEDİĞİN PARÇAYI YAZ GÖNDER </h3>
-    <input type="text" id="istekAd" placeholder="Adınız">
-    <input type="text" id="istekMesaj" placeholder="İstediğiniz şarkı">
-    <button onclick="istekGonder()">Gönder</button>
-    <div id="istekDurum"></div>
-  </div>
+
+<div class="playerCard">
+
+    <div class="buttons">
+
+        <button id="play">▶ BAŞLAT</button>
+
+        <button id="pause">⏸ DURDUR</button>
+
+    </div>
+
+    <div id="volumeBox">
+
+        🔊 Ses
+
+        <input type="range"
+               id="volume"
+               min="0"
+               max="1"
+               step="0.01"
+               value="1">
+
+    </div>
+
+</div>
+
+
+<div class="songCard">
+
+    <div id="durum"></div>
+
+    <div id="siradaki"></div>
+
+</div>
+
+
+<div id="istekBolum">
+
+<h3>🎵 PARÇA İSTE</h3>
+
+<input
+id="istekAd"
+type="text"
+placeholder="Adınız">
+
+<input
+id="istekMesaj"
+type="text"
+placeholder="İstediğiniz şarkı">
+
+<button onclick="istekGonder()">
+Gönder
+</button>
+
+<div id="istekDurum"></div>
 
 </div>
 
