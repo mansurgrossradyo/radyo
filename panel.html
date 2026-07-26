@@ -25,9 +25,40 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
-#liste {
+/* === PANEL GRID === */
+#panelContainer{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* === ORTAK SCROLL ALANI === */
+.scrollBox{
+  background: #181818;
+  padding: 15px;
+  border-radius: 10px;
   max-height: 500px;
   overflow-y: auto;
+}
+
+/* Scroll bar güzelleştirme */
+.scrollBox::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollBox::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 6px;
+}
+
+/* Mobilde alt alta */
+@media (max-width: 900px){
+  #panelContainer{
+    grid-template-columns: 1fr;
+  }
 }
 .satir {
   background: #222;
@@ -60,10 +91,19 @@ button {
 <button id="btn">YÜKLE</button>
 <p id="msg"></p>
 
-<div id="liste"></div>
+<div id="panelContainer">
 
-<h2>🎵 Gelen İstekler</h2>
-<div id="istekler"></div>
+  <div>
+    <h2>🎵 Gelen İstekler</h2>
+    <div id="istekler" class="scrollBox"></div>
+  </div>
+
+  <div>
+    <h2>📋 Şarkı Listesi</h2>
+    <div id="liste" class="scrollBox"></div>
+  </div>
+
+</div>
   
 <script>
 const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
