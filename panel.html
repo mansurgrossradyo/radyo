@@ -195,6 +195,7 @@ async function istekleriGetir(){
       html += `
         <div class="satir">
           <span><b>${r.name}</b>: ${r.message}</span>
+          <button class="sil" onclick="istekSil(${r.id})">SİL</button>
         </div>
       `;
     });
@@ -210,5 +211,22 @@ istekleriGetir();
 setInterval(istekleriGetir, 10000);
 </script>
 
+  async function istekSil(id){
+
+  if(!confirm("Bu istek silinsin mi?")) return;
+
+  const { error } = await supa
+    .from("requests")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    alert("Silme hatası");
+    console.error(error);
+    return;
+  }
+
+  istekleriGetir();
+}
 </body>
 </html>
