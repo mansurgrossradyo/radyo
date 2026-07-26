@@ -72,13 +72,53 @@ body::before{
 }
 
 #clockBox{
-  background:#fff;
-  color:#111;
-  padding:15px 20px;
-  border-radius:18px;
-  font-size:32px;
-  font-weight:bold;
-  min-width:130px;
+
+    width:150px;
+
+    background:white;
+
+    color:#111;
+
+    border-radius:18px;
+
+    text-align:center;
+
+    padding:14px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+
+}
+
+#clockTime{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    line-height:1;
+
+}
+
+#clockDate{
+
+    margin-top:8px;
+
+    font-size:15px;
+
+    color:#666;
+
+}
+
+#clockDay{
+
+    margin-top:4px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    color:#ffb300;
+
 }
 
 #weatherBox{
@@ -188,7 +228,11 @@ button:hover{transform:translateY(-2px)}
 
     <div id="rightWidgets">
          <div id="weatherBox">🌤 Yükleniyor...</div>
-      <div id="clockBox">00:00</div>
+    <div id="clockBox">
+        <div id="clockTime">00:00</div>
+        <div id="clockDate">26.07.2026</div>
+        <div id="clockDay">Pazar</div>
+    </div>
     </div>
   </div>
 
@@ -361,10 +405,31 @@ document.getElementById("volume").oninput=e=>player.volume=e.target.value;
 
 /* ===== SAAT ===== */
 function saatGuncelle(){
- const d=new Date();
- document.getElementById("clockBox").innerText=
-   d.getHours().toString().padStart(2,"0")+":"+
-   d.getMinutes().toString().padStart(2,"0");
+
+    const d = new Date();
+
+    document.getElementById("clockTime").innerText =
+        String(d.getHours()).padStart(2,"0")+":"+
+        String(d.getMinutes()).padStart(2,"0");
+
+    document.getElementById("clockDate").innerText =
+        String(d.getDate()).padStart(2,"0")+"."+
+        String(d.getMonth()+1).padStart(2,"0")+"."+
+        d.getFullYear();
+
+    const gunler=[
+        "Pazar",
+        "Pazartesi",
+        "Salı",
+        "Çarşamba",
+        "Perşembe",
+        "Cuma",
+        "Cumartesi"
+    ];
+
+    document.getElementById("clockDay").innerText =
+        gunler[d.getDay()];
+
 }
 setInterval(saatGuncelle,1000); saatGuncelle();
 
