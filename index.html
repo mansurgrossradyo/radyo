@@ -1,366 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mansur Gross Radyo</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
+*{margin:0;padding:0;box-sizing:border-box}
 body{
-font-family:Arial,Helvetica,sans-serif;
-background:url("bg.jpg") center center/cover no-repeat fixed;
-height:100vh;
-overflow:hidden;
-display:flex;
-justify-content:center;
-align-items:flex-end;
-color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+  background:url("bg.jpg") center/cover no-repeat fixed;
+  height:100vh;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  color:#fff;
 }
-
 body::before{
-content:"";
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-backdrop-filter:blur(2px);
-z-index:-1;
+  content:"";
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(3px);
+  z-index:-1;
 }
 
+/* ===== ANA CAM KART ===== */
 #overlay{
-
-width:92%;
-max-width:1350px;
-
-margin-bottom:30px;
-
-background:rgba(20,20,20,.45);
-
-backdrop-filter:blur(18px);
-
-border:1px solid rgba(255,255,255,.08);
-
-border-radius:24px;
-
-padding:30px;
-
-box-shadow:0 15px 60px rgba(0,0,0,.45);
-
+  width:95%; max-width:1300px;
+  margin-bottom:30px;
+  background:rgba(20,20,20,.55);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:35px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
-#baslik{
-
-font-size:32px;
-
-font-weight:700;
-
-letter-spacing:1px;
-
-margin-bottom:8px;
-
+/* ===== ÜST BAR ===== */
+.topBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:25px;
 }
-
+#baslik{font-size:30px;font-weight:700}
 #canli{
+  color:#28ff63;
+  font-weight:bold;
+  margin-top:6px;
+  animation:blink 1s infinite;
+}
+@keyframes blink{50%{opacity:.4}}
 
-color:#22ff55;
-
-font-size:22px;
-
-font-weight:bold;
-
-margin-bottom:25px;
-
-animation:blink 1s infinite;
-
+/* ===== EZAN KUTUSU ===== */
+#ezanBilgi{
+  background:#0f172a;
+  padding:14px 20px;
+  border-radius:14px;
+  font-size:14px;
+  border:1px solid rgba(255,255,255,.1);
 }
 
-@keyframes blink{
-
-50%{
-
-opacity:.4;
-
+/* ===== SAĞ WIDGET ===== */
+#rightWidgets{
+  display:flex;
+  align-items:center;
+  gap:20px;
 }
 
+#clockBox{
+  background:#fff;
+  color:#111;
+  padding:15px 20px;
+  border-radius:18px;
+  font-size:32px;
+  font-weight:bold;
+  min-width:130px;
+}
+
+#weatherBox{
+  background:#1f2937;
+  padding:15px 20px;
+  border-radius:18px;
+  font-size:14px;
+}
+
+/* ===== KONTROL ALANI ===== */
+.mainCard{
+  background:rgba(255,255,255,.05);
+  padding:25px;
+  border-radius:22px;
+  margin-bottom:25px;
+}
+
+.controlRow{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
 }
 
 button{
-
-border:none;
-
-cursor:pointer;
-
-border-radius:15px;
-
-padding:18px 34px;
-
-font-size:22px;
-
-font-weight:bold;
-
-transition:.25s;
-
+  border:none;
+  cursor:pointer;
+  border-radius:18px;
+  padding:18px 40px;
+  font-size:20px;
+  font-weight:bold;
+  transition:.2s;
 }
-
-button:hover{
-
-transform:translateY(-2px);
-
-}
+button:hover{transform:translateY(-2px)}
 
 #play{
-
-background:#ffc107;
-
-color:#111;
-
+  background:#ffc107;
+  color:#111;
 }
-
 #pause{
-
-background:#ff3d4f;
-
-color:#fff;
-
-margin-left:15px;
-
-}
-
-#durum{
-
-font-size:40px;
-
-font-weight:bold;
-
-margin-top:30px;
-
-}
-
-#siradaki{
-
-margin-top:10px;
-
-font-size:22px;
-
-opacity:.8;
-
+  background:#ff3d4f;
+  color:#fff;
 }
 
 #volumeBox{
-
-margin-top:25px;
-
-font-size:18px;
-
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
-
 #volume{
-
-width:320px;
-
-accent-color:#ffc107;
-
+  width:200px;
+  accent-color:#ffc107;
 }
 
-#ezanBilgi{
-
-position:absolute;
-
-right:40px;
-
-top:30px;
-
-background:#111827;
-
-padding:15px 22px;
-
-border-radius:15px;
-
-font-size:15px;
-
-border:1px solid rgba(255,255,255,.08);
-
+/* ===== ŞARKI ALANI ===== */
+.songRow{
+  margin-top:25px;
+}
+#durum{
+  font-size:34px;
+  font-weight:bold;
+}
+#siradaki{
+  margin-top:6px;
+  opacity:.7;
+  font-size:16px;
 }
 
+/* ===== İSTEK ===== */
 #istekBolum{
-
-margin-top:35px;
-
-background:rgba(255,255,255,.05);
-
-padding:20px;
-
-border-radius:18px;
-
+  margin-top:20px;
+  background:rgba(255,255,255,.05);
+  padding:18px;
+  border-radius:20px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
 }
-
-#istekBolum h3{
-
-margin-bottom:15px;
-
-font-size:22px;
-
-}
-
 #istekBolum input{
-
-width:250px;
-
-padding:12px;
-
-border:none;
-
-border-radius:10px;
-
-margin-right:8px;
-
-background:#fff;
-
+  padding:12px;
+  border:none;
+  border-radius:10px;
 }
-
 #istekBolum button{
-
-background:#ffc107;
-
-color:#111;
-
-padding:12px 28px;
-
-}
-
-#istekDurum{
-
-margin-top:10px;
-
-}
-
-.ezanMod{
-
-background:#1d4724 !important;
-
+  background:#ffc107;
+  color:#111;
+  padding:12px 25px;
 }
 
 @media(max-width:900px){
-
-#overlay{
-
-width:95%;
-
-padding:20px;
-
-}
-
-#baslik{
-
-font-size:32px;
-
-}
-
-#durum{
-
-font-size:28px;
-
-}
-
-#ezanBilgi{
-
-background:#111827;
-
-padding:14px 18px;
-
-border-radius:15px;
-
-font-size:14px;
-
-white-space:nowrap;
-
-}
-
-#istekBolum input{
-
-width:100%;
-
-margin-bottom:10px;
-
-}
-
-button{
-
-width:100%;
-
-margin-top:10px;
-
-}
-
-}
-
-.topBar{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-gap:20px;
-
-margin-bottom:30px;
-
-flex-wrap:wrap;
-
-}
-
-.playerCard{
-
-background:rgba(255,255,255,.05);
-
-padding:20px;
-
-border-radius:18px;
-
-margin-bottom:20px;
-
-}
-
-.songCard{
-
-background:rgba(255,255,255,.05);
-
-padding:20px;
-
-border-radius:18px;
-
-margin-bottom:20px;
-
-}
-
-.buttons{
-
-display:flex;
-
-gap:15px;
-
-align-items:center;
-
-margin-bottom:15px;
-
-}
-
-.songCard{
-
-display:flex;
-
-align-items:center;
-
-gap:20px;
-
+  #rightWidgets{flex-direction:column;align-items:flex-end}
+  #clockBox{font-size:26px}
 }
 </style>
 </head>
@@ -368,295 +179,117 @@ gap:20px;
 <body>
 
 <div id="overlay">
+
   <div class="topBar">
-
     <div>
-        <div id="baslik">📻 DJ-CIXO MANSUR RADYO</div>
-        <div id="canli">🔴 CANLI YAYIN</div>
+      <div id="baslik">📻 DJ‑CIXO MANSUR RADYO</div>
+      <div id="canli">🔴 CANLI YAYIN</div>
     </div>
 
-    <div id="ezanBilgi">
-        🕌 Yükleniyor...
+    <div id="rightWidgets">
+      <div id="ezanBilgi">🕌 Yükleniyor...</div>
+      <div id="weatherBox">🌤 Yükleniyor...</div>
+      <div id="clockBox">00:00</div>
+    </div>
+  </div>
+
+  <div class="mainCard">
+    <div class="controlRow">
+      <button id="play">▶ DİNLEMEYE BAŞLA</button>
+      <button id="pause">■</button>
+
+      <div id="volumeBox">
+        🔊
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      </div>
     </div>
 
-</div>
-
-
-<div class="playerCard">
-
-    <div class="buttons">
-
-        <button id="play">▶ BAŞLAT</button>
-
-        <button id="pause">⏸ DURDUR</button>
-
+    <div class="songRow">
+      <div id="durum"></div>
+      <div id="siradaki"></div>
     </div>
+  </div>
 
-    <div id="volumeBox">
-
-        🔊 Ses
-
-        <input type="range"
-               id="volume"
-               min="0"
-               max="1"
-               step="0.01"
-               value="1">
-
-    </div>
-
-</div>
-
-
-<div class="songCard">
-
-    <div id="durum"></div>
-
-    <div id="siradaki"></div>
-
-</div>
-
-
-<div id="istekBolum">
-
-<h3>🎵 PARÇA İSTE</h3>
-
-<input
-id="istekAd"
-type="text"
-placeholder="Adınız">
-
-<input
-id="istekMesaj"
-type="text"
-placeholder="İstediğiniz şarkı">
-
-<button onclick="istekGonder()">
-Gönder
-</button>
-
-<div id="istekDurum"></div>
+  <div id="istekBolum">
+    <input id="istekAd" type="text" placeholder="Adınız">
+    <input id="istekMesaj" type="text" placeholder="İstediğiniz şarkı">
+    <button onclick="istekGonder()">Gönder</button>
+    <div id="istekDurum"></div>
+  </div>
 
 </div>
 
 <audio id="player"></audio>
 
 <script>
-/* ================= AYARLAR ================= */
-const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
-const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
+const PROJECT_URL="https://xiidhsrcyjtcwcwbomga.supabase.co";
+const ANON_KEY="ANON_KEYİNİ_YAZ";
+const client=supabase.createClient(PROJECT_URL,ANON_KEY);
 
-const SEHIR    = "Diyarbakir";
-const ULKE     = "Turkey";
-const METHOD   = 13;
-const EZAN_SURESI_DK = 5;
-const ONCE_DK  = 0;
-/* =========================================== */
+const player=document.getElementById("player");
+const durum=document.getElementById("durum");
+const siradakiEl=document.getElementById("siradaki");
+let muzikler=[],sira=0;
 
-const client = supabase.createClient(PROJECT_URL, ANON_KEY);
-
-const player     = document.getElementById("player");
-const durum      = document.getElementById("durum");
-const siradakiEl = document.getElementById("siradaki");
-const ezanBilgi  = document.getElementById("ezanBilgi");
-const overlay    = document.getElementById("overlay");
-
-let muzikler = [], jingles = [], anonslar = [];
-let sira = 0, adim = 0;
-let calisiyor = false;
-
-let ezanSaatleri = [];
-let ezanAdlari   = {};
-let ezanModu     = false;
-let ezanBitisTS  = 0;
-let sonEzanGun   = "";
-
-/* ---------- YARDIMCI ---------- */
-function karistir(a){
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-}
-function saatStr(d){
-  return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-}
-
-/* ---------- VERİ ---------- */
 async function verileriYukle(){
-  const { data } = await client.from("songs").select("*");
-  muzikler = data.filter(x => x.type === "music");
-  jingles  = data.filter(x => x.type === "jingle");
-  anonslar = data.filter(x => x.type === "anons");
-  karistir(muzikler);
+ const {data}=await client.from("songs").select("*").eq("type","music");
+ muzikler=data||[];
 }
 
-/* ---------- ÇALMA ---------- */
 function cal(){
-  if(ezanModu) return;
-  if(muzikler.length === 0){ durum.innerText = "Müzik yok"; return; }
-
-  let url = "";
-
-  if(adim === 0){
-    const aktif = muzikler[sira];
-    url = aktif.url;
-    durum.innerText = "🎵 " + (aktif.title || "Müzik");
-    siradakiEl.innerText = "Sıradaki: " + (muzikler[(sira+1)%muzikler.length].title || "-");
-  }
-  else if(adim === 1 && jingles.length > 0){
-    url = jingles[Math.floor(Math.random()*jingles.length)].url;
-    durum.innerText = "🔔 Jingle";
-  }
-  else if(adim === 2 && anonslar.length > 0){
-    url = anonslar[Math.floor(Math.random()*anonslar.length)].url;
-    durum.innerText = "📢 Anons";
-  }
-  else { gec(); return; }
-
-  player.src = url;
-  player.play().catch(()=>{});
-  calisiyor = true;
+ if(!muzikler.length)return;
+ const aktif=muzikler[sira];
+ player.src=aktif.url;
+ player.play();
+ durum.innerText="🎵 "+aktif.title;
+ siradakiEl.innerText="Sıradaki: "+(muzikler[(sira+1)%muzikler.length]?.title||"-");
 }
 
-function gec(){
-  if(ezanModu) return;
-  adim++;
-  if(adim > 2){
-    adim = 0;
-    sira++;
-    if(sira >= muzikler.length){ karistir(muzikler); sira = 0; }
-  }
-  cal();
+player.onended=()=>{sira=(sira+1)%muzikler.length;cal();};
+document.getElementById("play").onclick=async()=>{if(!muzikler.length)await verileriYukle();cal();};
+document.getElementById("pause").onclick=()=>player.pause();
+document.getElementById("volume").oninput=e=>player.volume=e.target.value;
+
+/* ===== SAAT ===== */
+function saatGuncelle(){
+ const d=new Date();
+ document.getElementById("clockBox").innerText=
+   d.getHours().toString().padStart(2,"0")+":"+
+   d.getMinutes().toString().padStart(2,"0");
 }
+setInterval(saatGuncelle,1000); saatGuncelle();
 
-player.onended = gec;
+/* ===== HAVA DURUMU (Diyarbakır) ===== */
+async function havaDurumu(){
+ const res=await fetch("https://api.open-meteo.com/v1/forecast?latitude=37.9144&longitude=40.2306&current_weather=true");
+ const j=await res.json();
+ document.getElementById("weatherBox").innerHTML=
+   "🌤 Diyarbakır<br>"+j.current_weather.temperature+"°C";
+}
+havaDurumu();
 
-/* ---------- BUTONLAR ---------- */
+/* ===== EZAN SAATİ ===== */
+async function ezan(){
+ const r=await fetch("https://api.aladhan.com/v1/timingsByCity?city=Diyarbakir&country=Turkey&method=13");
+ const j=await r.json();
+ const t=j.data.timings;
+ document.getElementById("ezanBilgi").innerText=
+  "🕌 Sabah "+t.Fajr.slice(0,5)+
+  " • Öğle "+t.Dhuhr.slice(0,5)+
+  " • İkindi "+t.Asr.slice(0,5)+
+  " • Akşam "+t.Maghrib.slice(0,5)+
+  " • Yatsı "+t.Isha.slice(0,5);
+}
+ezan();
 
-document.getElementById("play").onclick = async function(){
-  if(muzikler.length === 0){
-    await verileriYukle();
-  }
-  cal();
-};
-
-document.getElementById("pause").onclick = function(){
-  player.pause();
-};
-
-/* ---------- SES AYARI ---------- */
-document.getElementById("volume").oninput = function(){
-  player.volume = this.value;
-};
-
-/* ---------- İSTEK SİSTEMİ ---------- */
+/* ===== İSTEK ===== */
 async function istekGonder(){
-  const ad = document.getElementById("istekAd").value.trim();
-  const mesaj = document.getElementById("istekMesaj").value.trim();
-  const durumEl = document.getElementById("istekDurum");
-
-  if(!ad || !mesaj){
-    durumEl.innerText = "Boş bırakma";
-    return;
-  }
-
-  const { error } = await client.from("requests").insert({
-    name: ad,
-    message: mesaj
-  });
-
-  if(error){
-    durumEl.innerText = "Hata oluştu";
-    return;
-  }
-
-  durumEl.innerText = "✅ İstek gönderildi";
-  document.getElementById("istekAd").value="";
-  document.getElementById("istekMesaj").value="";
+ const ad=document.getElementById("istekAd").value.trim();
+ const mesaj=document.getElementById("istekMesaj").value.trim();
+ if(!ad||!mesaj)return;
+ await client.from("requests").insert({name:ad,message:mesaj});
+ document.getElementById("istekDurum").innerText="✅ Gönderildi";
 }
-
-/* ---------- EZAN SAATLERİ (API) ---------- */
-async function ezanSaatleriniAl(){
-  try{
-    const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(SEHIR)}&country=${encodeURIComponent(ULKE)}&method=${METHOD}`;
-    const res = await fetch(url);
-    const j = await res.json();
-    const t = j.data.timings;
-
-    const map = {
-      "Sabah": t.Fajr, "Öğle": t.Dhuhr, "İkindi": t.Asr,
-      "Akşam": t.Maghrib, "Yatsı": t.Isha
-    };
-
-    ezanSaatleri = [];
-    ezanAdlari = {};
-
-    for(const ad in map){
-      let s = map[ad].slice(0,5);
-      if(ONCE_DK > 0){
-        const [h,m] = s.split(":").map(Number);
-        const d = new Date(); d.setHours(h, m - ONCE_DK, 0, 0);
-        s = saatStr(d);
-      }
-      ezanSaatleri.push(s);
-      ezanAdlari[s] = ad;
-    }
-
-    sonEzanGun = new Date().toDateString();
-    ezanBilgi.innerText = "🕌 " + SEHIR + " → " +
-      Object.entries(ezanAdlari).map(([s,a]) => a+" "+s).join("  •  ");
-
-  }catch(e){
-    console.error(e);
-    ezanBilgi.innerText = "🕌 Ezan saatleri alınamadı (yedek liste kullanılıyor)";
-    ezanSaatleri = ["04:45","13:10","17:05","20:30","22:00"];
-    ezanAdlari = {"04:45":"Sabah","13:10":"Öğle","17:05":"İkindi","20:30":"Akşam","22:00":"Yatsı"};
-  }
-}
-
-/* ---------- EZAN KONTROL ---------- */
-function ezanKontrol(){
-  const now = new Date();
-
-  if(sonEzanGun && now.toDateString() !== sonEzanGun){
-    ezanSaatleriniAl();
-  }
-
-  if(ezanModu){
-    if(Date.now() >= ezanBitisTS){
-      ezanModu = false;
-      overlay.classList.remove("ezanMod");
-      durum.innerText = "🎵 Yayın devam ediyor...";
-      if(calisiyor) cal();
-    }else{
-      const kalan = Math.ceil((ezanBitisTS - Date.now())/1000);
-      const dk = Math.floor(kalan/60), sn = kalan%60;
-      durum.innerText = "🕌 EZAN VAKTİ — yayın duraklatıldı (" + dk + ":" + String(sn).padStart(2,"0") + ")";
-    }
-    return;
-  }
-
-  const s = saatStr(now);
-  if(ezanSaatleri.includes(s)){
-    ezanModu = true;
-    ezanBitisTS = Date.now() + EZAN_SURESI_DK*60*1000;
-    overlay.classList.add("ezanMod");
-    player.pause();
-    durum.innerText = "🕌 " + (ezanAdlari[s]||"") + " EZANI — yayın duraklatıldı";
-    siradakiEl.innerText = "";
-  }
-}
-
-setInterval(ezanKontrol, 1000);
-ezanSaatleriniAl();
-
-/* ---------- BAŞLANGIÇ ---------- */
-
-window.addEventListener("load", async () => {
-  await verileriYukle();
-});
 </script>
-
 </body>
 </html>
