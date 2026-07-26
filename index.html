@@ -254,11 +254,80 @@ async function istekGonder(){
   document.getElementById("istekMesaj").value="";
 }
 
-/* ---------- EZAN SİSTEMİ (AYNEN KORUNDU) ---------- */
-// SENİN EZAN KODUN BURADA AYNI KALDI
-// (kısaltmadım ama burada yer kazanmak için yazmıyorum)
-// Mevcut ezanSaatleriniAl() ve ezanKontrol() fonksiyonların
-// aynen çalışmaya devam edecek.
+/* ---------- EZAN SAATLERİ (API) ---------- */
+async function ezanSaatleriniAl(){
+  try{
+    const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(SEHIR)}&country=${encodeURIComponent(ULKE)}&method=${METHOD}`;
+    const res = await fetch(url);
+    const j = await res.json();
+    const t = j.data.timings;
+
+    const map = {
+      "Sabah": t.Fajr, "Öğle": t.Dhuhr, "İkindi": t.Asr,
+      "Akşam": t.Maghrib, "Yatsı": t.Isha
+    };
+
+    ezanSaatleri = [];
+    ezanAdlari = {};
+
+    for(const ad in map){
+      let s = map[ad].slice(0,5);
+      if(ONCE_DK > 0){
+        const [h,m] = s.split(":").map(Number);
+        const d = new Date(); d.setHours(h, m - ONCE_DK, 0, 0);
+        s = saatStr(d);
+      }
+      ezanSaatleri.push(s);
+      ezanAdlari[s] = ad;
+    }
+
+    sonEzanGun = new Date().toDateString();
+    ezanBilgi.innerText = "🕌 " + SEHIR + " → " +
+      Object.entries(ezanAdlari).map(([s,a]) => a+" "+s).join("  •  ");
+
+  }catch(e){
+    console.error(e);
+    ezanBilgi.innerText = "🕌 Ezan saatleri alınamadı (yedek liste kullanılıyor)";
+    ezanSaatleri = ["04:45","13:10","17:05","20:30","22:00"];
+    ezanAdlari = {"04:45":"Sabah","13:10":"Öğle","17:05":"İkindi","20:30":"Akşam","22:00":"Yatsı"};
+  }
+}
+
+/* ---------- EZAN KONTROL ---------- */
+function ezanKontrol(){
+  const now = new Date();
+
+  if(sonEzanGun && now.toDateString() !== sonEzanGun){
+    ezanSaatleriniAl();
+  }
+
+  if(ezanModu){
+    if(Date.now() >= ezanBitisTS){
+      ezanModu = false;
+      overlay.classList.remove("ezanMod");
+      durum.innerText = "🎵 Yayın devam ediyor...";
+      if(calisiyor) cal();
+    }else{
+      const kalan = Math.ceil((ezanBitisTS - Date.now())/1000);
+      const dk = Math.floor(kalan/60), sn = kalan%60;
+      durum.innerText = "🕌 EZAN VAKTİ — yayın duraklatıldı (" + dk + ":" + String(sn).padStart(2,"0") + ")";
+    }
+    return;
+  }
+
+  const s = saatStr(now);
+  if(ezanSaatleri.includes(s)){
+    ezanModu = true;
+    ezanBitisTS = Date.now() + EZAN_SURESI_DK*60*1000;
+    overlay.classList.add("ezanMod");
+    player.pause();
+    durum.innerText = "🕌 " + (ezanAdlari[s]||"") + " EZANI — yayın duraklatıldı";
+    siradakiEl.innerText = "";
+  }
+}
+
+setInterval(ezanKontrol, 1000);
+ezanSaatleriniAl();
 
 /* ---------- BAŞLANGIÇ ---------- */
 
