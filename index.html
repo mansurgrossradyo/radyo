@@ -198,6 +198,26 @@ button{
     font-size:22px;
   }
 }
+
+.controlRow{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.songRow{
+  flex:1;
+  min-width:250px;
+}
+
+#rightWidgets{
+  margin-left:auto;
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+  
 </style>
 </head>
 
@@ -213,39 +233,49 @@ button{
 
     
   <div class="mainCard">
-    <div class="controlRow">
-      <button id="play">▶ DİNLEMEYE BAŞLA</button>
-      <button id="pause">■</button>
 
-      <div id="volumeBox">
-        🔊
-        <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-      </div>
+  <div class="controlRow">
+
+    <button id="play">▶ DİNLEMEYE BAŞLA</button>
+
+    <button id="pause">■</button>
+
+    <div id="volumeBox">
+      🔊
+      <input type="range"
+             id="volume"
+             min="0"
+             max="1"
+             step="0.01"
+             value="1">
     </div>
 
+    <!-- ŞARKI BLOĞU -->
     <div class="songRow">
       <div id="durum"></div>
       <div id="siradaki"></div>
     </div>
-  </div>
 
+    <!-- HAVA + SAAT -->
     <div id="rightWidgets">
+
       <div id="weatherBox">
-      
-          <div id="weatherCity">📍 Diyarbakır</div>
-      
-          <div id="weatherTemp">--°C</div>
-      
-          <div id="weatherDesc">Yükleniyor...</div>
-      
+        <div id="weatherCity">📍 Diyarbakır</div>
+        <div id="weatherTemp">--°C</div>
+        <div id="weatherDesc">Yükleniyor...</div>
       </div>
-    <div id="clockBox">
+
+      <div id="clockBox">
         <div id="clockTime">00:00</div>
         <div id="clockDate">26.07.2026</div>
         <div id="clockDay">Pazar</div>
+      </div>
+
     </div>
-    </div>
+
   </div>
+
+</div>
 
   <div id="istekBolum">
     <input id="istekAd" type="text" placeholder="ADINIZ">
