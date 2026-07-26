@@ -13,11 +13,13 @@ body {
   text-align: center;
   padding: 40px;
 }
+
 input, select, button {
   padding: 10px;
   margin: 8px;
   font-size: 16px;
 }
+
 button {
   background: #28a745;
   color: white;
@@ -25,6 +27,12 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
+
+.sil {
+  background: #dc3545;
+  padding: 6px 12px;
+}
+
 /* === PANEL GRID === */
 #panelContainer{
   display: grid;
@@ -36,7 +44,6 @@ button {
   margin-right: auto;
 }
 
-/* === ORTAK SCROLL ALANI === */
 .scrollBox{
   background: #181818;
   padding: 15px;
@@ -45,21 +52,6 @@ button {
   overflow-y: auto;
 }
 
-/* Scroll bar güzelleştirme */
-.scrollBox::-webkit-scrollbar {
-  width: 8px;
-}
-.scrollBox::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 6px;
-}
-
-/* Mobilde alt alta */
-@media (max-width: 900px){
-  #panelContainer{
-    grid-template-columns: 1fr;
-  }
-}
 .satir {
   background: #222;
   padding: 10px;
@@ -69,16 +61,35 @@ button {
   justify-content: space-between;
   align-items: center;
 }
-.sil {
-  background: #dc3545;
-  padding: 6px 12px;
+
+/* LOGIN */
+#loginBox{
+  max-width:400px;
+  margin:100px auto;
+  background:#1b1b1b;
+  padding:30px;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎛 RADYO PANEL</h1>
+<!-- LOGIN -->
+<div id="loginBox" style="display:none;">
+  <h2>🔐 Panel Giriş</h2>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="password" id="password" placeholder="Şifre"><br>
+  <button onclick="girisYap()">Giriş Yap</button>
+  <p id="loginMsg"></p>
+</div>
+
+<!-- PANEL -->
+<div id="panelContent" style="display:none;">
+
+<h1>🎛 RADYO PANEL 
+  <button onclick="cikisYap()" style="background:#dc3545;">Çıkış</button>
+</h1>
 
 <input type="text" id="title" placeholder="Şarkı adı (boşsa dosya adı)">
 <select id="type">
@@ -104,12 +115,54 @@ button {
   </div>
 
 </div>
-  
+
+</div>
+
 <script>
 const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
 const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
 
 const supa = supabase.createClient(PROJECT_URL, ANON_KEY);
+
+/* ================= AUTH ================= */
+
+async function kontrolEt(){
+  const { data } = await supa.auth.getSession();
+
+  if(data.session){
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("panelContent").style.display = "block";
+    listele();
+    istekleriGetir();
+  } else {
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("panelContent").style.display = "none";
+  }
+}
+
+async function girisYap(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supa.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById("loginMsg").innerText = "Hatalı giriş";
+    return;
+  }
+
+  kontrolEt();
+}
+
+async function cikisYap(){
+  await supa.auth.signOut();
+  kontrolEt();
+}
+
+/* ================= ŞARKI YÜKLE ================= */
 
 document.getElementById("btn").addEventListener("click", async () => {
 
@@ -123,13 +176,7 @@ document.getElementById("btn").addEventListener("click", async () => {
   }
 
   const file = fileInput.files[0];
-
-  // Eğer title boşsa dosya adını kullan
-  const title = titleInput === "" 
-    ? file.name.replace(".mp3", "") 
-    : titleInput;
-
-  document.getElementById("msg").innerText = "Yükleniyor...";
+  const title = titleInput === "" ? file.name.replace(".mp3","") : titleInput;
 
   const filePath = "uploads/" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "_");
 
@@ -138,46 +185,28 @@ document.getElementById("btn").addEventListener("click", async () => {
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
-    console.error(uploadError);
-    alert("Storage hatası: " + uploadError.message);
-    document.getElementById("msg").innerText = "";
+    alert("Storage hatası");
     return;
   }
 
   const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
 
-  const { error: dbError } = await supa
-    .from("songs")
-    .insert({ title: title, url: data.publicUrl, type: type });
-
-  if (dbError) {
-    console.error(dbError);
-    alert("DB hatası: " + dbError.message);
-    document.getElementById("msg").innerText = "";
-    return;
-  }
-
-  document.getElementById("msg").innerText = "";
-  document.getElementById("title").value = "";
-  document.getElementById("file").value = "";
+  await supa.from("songs").insert({
+    title,
+    url: data.publicUrl,
+    type
+  });
 
   alert("✅ Yüklendi");
   listele();
 });
 
+/* ================= ŞARKI LİSTE ================= */
+
 async function listele() {
-  const { data, error } = await supa.from("songs").select("*").order("id");
+  const { data } = await supa.from("songs").select("*").order("id");
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  let html = "<h3>📋 Yüklü Dosyalar</h3>";
-
-  if (!data.length) {
-    html += "<p>Henüz dosya yok</p>";
-  }
+  let html = "";
 
   data.forEach(s => {
     const icon = s.type === "music" ? "🎵" :
@@ -194,78 +223,38 @@ async function listele() {
   document.getElementById("liste").innerHTML = html;
 }
 
-async function sil(id) {
-  if (!confirm("Silinsin mi?")) return;
-
-  const { error } = await supa.from("songs").delete().eq("id", id);
-
-  if (error) {
-    alert("Silme hatası: " + error.message);
-    return;
-  }
-
+async function sil(id){
+  await supa.from("songs").delete().eq("id", id);
   listele();
 }
 
-listele();
-// ==========================
-// 🎵 İSTEKLERİ GETİR
-// ==========================
+/* ================= İSTEKLER ================= */
 
 async function istekleriGetir(){
-
-  const { data, error } = await supa
-    .from("requests")
-    .select("*")
-    .order("created_at",{ascending:false});
-
-  if(error){
-    console.error("İstek hatası:", error);
-    return;
-  }
+  const { data } = await supa.from("requests").select("*").order("created_at",{ascending:false});
 
   let html = "";
 
-  if(data.length === 0){
-    html = "<p>Henüz istek yok</p>";
-  } else {
-    data.forEach(r=>{
-      html += `
-        <div class="satir">
-          <span><b>${r.name}</b>: ${r.message}</span>
-          <button class="sil" onclick="istekSil(${r.id})">SİL</button>
-        </div>
-      `;
-    });
-  }
+  data.forEach(r=>{
+    html += `
+      <div class="satir">
+        <span><b>${r.name}</b>: ${r.message}</span>
+        <button class="sil" onclick="istekSil(${r.id})">SİL</button>
+      </div>
+    `;
+  });
 
   document.getElementById("istekler").innerHTML = html;
 }
 
-// Sayfa açılınca yükle
-istekleriGetir();
-
-// 10 saniyede bir yenile
-setInterval(istekleriGetir, 10000);
-
-  
-  async function istekSil(id){
-
-  if(!confirm("Bu istek silinsin mi?")) return;
-
-  const { error } = await supa
-    .from("requests")
-    .delete()
-    .eq("id", id);
-
-  if(error){
-    alert("Silme hatası");
-    console.error(error);
-    return;
-  }
-
+async function istekSil(id){
+  await supa.from("requests").delete().eq("id", id);
   istekleriGetir();
 }
+
+setInterval(istekleriGetir, 10000);
+
+kontrolEt();
 </script>
 
 </body>
