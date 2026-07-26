@@ -272,14 +272,12 @@ async function ezan(){
  const r=await fetch("https://api.aladhan.com/v1/timingsByCity?city=Diyarbakir&country=Turkey&method=13");
  const j=await r.json();
  const t=j.data.timings;
- document.getElementById("ezanBilgi").innerText=
   "🕌 Sabah "+t.Fajr.slice(0,5)+
   " • Öğle "+t.Dhuhr.slice(0,5)+
   " • İkindi "+t.Asr.slice(0,5)+
   " • Akşam "+t.Maghrib.slice(0,5)+
   " • Yatsı "+t.Isha.slice(0,5);
 }
-ezan();
 
 /* ===== İSTEK ===== */
 async function istekGonder(){
