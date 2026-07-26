@@ -124,42 +124,139 @@ const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 
 const supa = supabase.createClient(PROJECT_URL, ANON_KEY);
 
-/* ================= AUTH ================= */
+/* ================= OTOMATİK ÇIKIŞ ================= */
+
+const PANEL_OTURUM_DK = 60; // 60 dakika sonra çıkış
+const PANEL_OTURUM_MS = PANEL_OTURUM_DK * 60 * 1000;
+const GIRIS_ZAMANI_KEY = "radyo_panel_giris_zamani";
+
+let otoCikisZamani = null;
+
+/* ================= AUTH + OTOMATİK ÇIKIŞ ================= */
 
 async function kontrolEt(){
-  const { data } = await supa.auth.getSession();
+
+  const { data, error } = await supa.auth.getSession();
+
+  if(error){
+    console.error("Oturum hatası:", error);
+    return;
+  }
 
   if(data.session){
+
+    let girisZamani = Number(
+      localStorage.getItem(GIRIS_ZAMANI_KEY)
+    );
+
+    // Eski oturum varsa süreyi şimdi başlat
+    if(!girisZamani){
+      girisZamani = Date.now();
+      localStorage.setItem(
+        GIRIS_ZAMANI_KEY,
+        girisZamani.toString()
+      );
+    }
+
+    // Süre dolmuşsa çıkış yap
+    if(Date.now() - girisZamani >= PANEL_OTURUM_MS){
+      await otomatikCikis();
+      return;
+    }
+
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("panelContent").style.display = "block";
+
     listele();
     istekleriGetir();
-  } else {
+
+    // Kalan süre kadar sonra otomatik çıkış
+    clearTimeout(otoCikisZamani);
+
+    const kalanSure =
+      PANEL_OTURUM_MS - (Date.now() - girisZamani);
+
+    otoCikisZamani = setTimeout(
+      otomatikCikis,
+      kalanSure
+    );
+
+  }else{
+
+    clearTimeout(otoCikisZamani);
+
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("panelContent").style.display = "none";
   }
 }
 
+
 async function girisYap(){
-  const email = document.getElementById("email").value;
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const { error } = await supa.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-    document.getElementById("loginMsg").innerText = "Hatalı giriş";
+  if(!email || !password){
+    document.getElementById("loginMsg").innerText =
+      "Email ve şifre yazın";
     return;
   }
 
+  const { error } = await supa.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if(error){
+    document.getElementById("loginMsg").innerText =
+      "Email veya şifre hatalı";
+    return;
+  }
+
+  // Giriş zamanını kaydet
+  localStorage.setItem(
+    GIRIS_ZAMANI_KEY,
+    Date.now().toString()
+  );
+
+  document.getElementById("loginMsg").innerText = "";
+
+setInterval(istekleriGetir, 10000);
+
+// Otomatik çıkış kontrolü
+setInterval(() => {
+
+  const girisZamani = Number(
+    localStorage.getItem(GIRIS_ZAMANI_KEY)
+  );
+
+  if(
+    girisZamani &&
+    Date.now() - girisZamani >= PANEL_OTURUM_MS
+  ){
+    otomatikCikis();
+  }
+
+}, 30000);
+
+kontrolEt();
+  
   kontrolEt();
 }
 
-async function cikisYap(){
+async function otomatikCikis(){
+
+  clearTimeout(otoCikisZamani);
+
+  localStorage.removeItem(GIRIS_ZAMANI_KEY);
+
   await supa.auth.signOut();
-  kontrolEt();
+
+  document.getElementById("panelContent").style.display = "none";
+  document.getElementById("loginBox").style.display = "block";
+
+  document.getElementById("loginMsg").innerText =
+    "⏰ Güvenlik nedeniyle oturum kapatıldı. Tekrar giriş yapın.";
 }
 
 /* ================= ŞARKI YÜKLE ================= */
