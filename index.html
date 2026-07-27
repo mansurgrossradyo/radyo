@@ -294,6 +294,112 @@ button{
   transform: scale(1.1);
   box-shadow: 0 6px 28px rgba(255,60,60,0.7);
 }  
+
+#istekBolum {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  padding: 24px 28px;
+}
+
+.istek-baslik {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffd200;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.istek-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.istek-input-grup {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50px;
+  padding: 0 16px;
+  flex: 1;
+  min-width: 200px;
+  transition: all 0.3s;
+}
+
+.istek-input-grup:focus-within {
+  border-color: #ffd200;
+  background: rgba(255,210,0,0.1);
+  box-shadow: 0 0 12px rgba(255,210,0,0.2);
+}
+
+.istek-ikon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.istek-input-grup input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  padding: 14px 0;
+  width: 100%;
+}
+
+.istek-input-grup input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+.istek-btn {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #111;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(255,200,0,0.4);
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+.istek-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 28px rgba(255,200,0,0.6);
+}
+
+#istekDurum {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 15px;
+  color: #28ff63;
+  font-weight: 600;
+}
+
+/* MOBİL */
+@media(max-width:600px){
+  .istek-form {
+    flex-direction: column;
+  }
+  .istek-input-grup {
+    width: 100%;
+  }
+  .istek-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
   
 </style>
 </head>
@@ -359,11 +465,25 @@ button{
 </div>
 
   <div id="istekBolum">
-    <input id="istekAd" type="text" placeholder="ADINIZ">
-    <input id="istekMesaj" type="text" placeholder="ŞARKICI VE ŞARKIı">
-    <button onclick="istekGonder()">Gönder</button>
-    <div id="istekDurum"></div>
+  <div class="istek-baslik">
+    🎵 Şarkı İsteği Gönder
   </div>
+  <div class="istek-form">
+    <div class="istek-input-grup">
+      <span class="istek-ikon">👤</span>
+      <input id="istekAd" type="text" placeholder="Adınız">
+    </div>
+    <div class="istek-input-grup">
+      <span class="istek-ikon">🎤</span>
+      <input id="istekMesaj" type="text" placeholder="Şarkıcı - Şarkı Adı">
+    </div>
+    <button class="istek-btn" onclick="istekGonder()">
+      <span>🎧</span>
+      <span>GÖNDER</span>
+    </button>
+  </div>
+  <div id="istekDurum"></div>
+</div>
 
 </div>
 
