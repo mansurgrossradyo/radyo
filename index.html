@@ -247,7 +247,53 @@ button{
   50%{transform:scale(1.08); opacity:.6;}
   100%{transform:scale(1); opacity:1;}
 }
-  
+
+#play {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #111;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(255,200,0,0.5);
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+#play:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 28px rgba(255,200,0,0.7);
+}
+
+#play .btn-icon {
+  font-size: 20px;
+}
+
+#pause {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(255,60,60,0.5);
+  transition: all 0.3s ease;
+}
+
+#pause:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(255,60,60,0.7);
+}  
   
 </style>
 </head>
@@ -268,9 +314,14 @@ button{
   <!-- ÜST SATIR -->
   <div class="controlRow">
 
-    <button id="play">▶ DİNLEMEYE BAŞLA</button>
-
-    <button id="pause">■</button>
+  <button id="play">
+    <span class="btn-icon">▶</span>
+    <span class="btn-text">DİNLEMEYE BAŞLA</span>
+  </button>
+  
+  <button id="pause">
+    <span class="btn-icon">⏸</span>
+  </button>
 
     <div id="volumeBox">
       🔊
