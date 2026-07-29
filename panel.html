@@ -231,6 +231,31 @@ body{
     width: 100%;
   }
 }
+
+/* Yükleme kartındaki alanları daha dengeli ve geniş yap */
+.uploadForm{
+  grid-template-columns: 2.2fr 1.25fr 1.45fr auto;
+  max-width: 100%;
+}
+
+.uploadCard{
+  min-height: 185px;
+}
+
+.uploadCardTitle{
+  margin-bottom: 24px;
+}
+
+.fieldGroup label{
+  margin-left: 2px;
+}
+
+/* Büyük ekranda form alanlarını kartın tamamına daha iyi yay */
+@media(min-width:801px){
+  .uploadForm{
+    padding:0 40px;
+  }
+}
   
 </style>
 </head>
