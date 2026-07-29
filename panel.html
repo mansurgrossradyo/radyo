@@ -269,7 +269,7 @@ body{
         <option value="anons">📢 Anons</option>
       </select>
       <label class="file-label">
-        📁 Dosya Seç
+        <span class="file-label-text">📁 Dosya Seç</span>
         <input type="file" id="file" accept="audio/*">
       </label>
       <button id="btn">YÜKLE</button>
@@ -398,6 +398,27 @@ async function otomatikCikis(){
 
 /* ================= ŞARKI YÜKLE ================= */
 
+/* === DOSYA SEÇİNDE OTOMATİK BAŞLIK === */
+document.getElementById("file").addEventListener("change", function(){
+  const dosya = this.files[0];
+  if(!dosya) return;
+
+  const titleInput = document.getElementById("title");
+
+  // Sadece input boşsa otomatik doldur
+  let ad = dosya.name
+    .replace(/\.[^/.]+$/, "")   // uzantı kaldır
+    .replace(/_/g, " ")          // alt çizgi → boşluk
+    .replace(/-/g, " - ");       // tire düzelt
+
+  titleInput.value = ad;
+  titleInput.focus();
+
+  // Dosya label güncelle
+  document.querySelector(".file-label-text").innerText = "✅ " + dosya.name;
+});
+
+/* === YÜKLE BUTONU === */
 document.getElementById("btn").addEventListener("click", async () => {
 
   const fileInput = document.getElementById("file");
@@ -406,27 +427,25 @@ document.getElementById("btn").addEventListener("click", async () => {
   const msg = document.getElementById("msg");
 
   if (!fileInput.files.length) {
-    alert("Dosya seç");
+    mesajGoster("⚠ Önce dosya seç!", "#ff5555");
     return;
   }
 
   const file = fileInput.files[0];
-  const title = titleInput === "" ? file.name.replace(".mp3","") : titleInput;
+  const title = titleInput === "" ? file.name.replace(/\.[^/.]+$/, "") : titleInput;
 
-  // 🔎 Aynı şarkı var mı? (yüklemeden ÖNCE kontrol)
+  // Aynı şarkı var mı?
   const { data: mevcut } = await supa
     .from("songs")
     .select("id")
     .ilike("title", title);
 
   if (mevcut && mevcut.length > 0) {
-    msg.innerText = "⚠ Bu şarkı zaten ekli!";
-    msg.style.color = "#ff5555";
+    mesajGoster("⚠ Bu şarkı zaten ekli!", "#ff5555");
     return;
   }
 
-  msg.innerText = "Yükleniyor...";
-  msg.style.color = "#fff";
+  mesajGoster("⏳ Yükleniyor...", "#fff");
 
   const filePath = "uploads/" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "_");
 
@@ -435,8 +454,7 @@ document.getElementById("btn").addEventListener("click", async () => {
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
-    msg.innerText = "Storage hatası";
-    msg.style.color = "#ff5555";
+    mesajGoster("❌ Storage hatası: " + uploadError.message, "#ff5555");
     return;
   }
 
@@ -449,19 +467,32 @@ document.getElementById("btn").addEventListener("click", async () => {
   });
 
   if (dbError) {
-    msg.innerText = "DB hatası: " + dbError.message;
-    msg.style.color = "#ff5555";
+    mesajGoster("❌ DB hatası: " + dbError.message, "#ff5555");
     return;
   }
 
-  msg.innerText = "✅ Yüklendi";
-  msg.style.color = "#28ff63";
+  mesajGoster("✅ Eklendi: " + title, "#28ff63");
 
+  // Temizle
   document.getElementById("title").value = "";
   document.getElementById("file").value = "";
+  document.querySelector(".file-label-text").innerText = "📁 Dosya Seç";
 
   listele();
 });
+
+/* === MESAJ: 3 SANİYE SONRA KAYBOL === */
+let mesajZamani = null;
+function mesajGoster(metin, renk){
+  const msg = document.getElementById("msg");
+  msg.innerText = metin;
+  msg.style.color = renk;
+
+  clearTimeout(mesajZamani);
+  mesajZamani = setTimeout(() => {
+    msg.innerText = "";
+  }, 3000); // 3 saniye sonra kaybol
+}
 
 /* ================= ŞARKI LİSTE ================= */
 
