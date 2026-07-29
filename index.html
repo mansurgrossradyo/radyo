@@ -401,12 +401,36 @@ button{
   }
 }
 
+/* ======= İMZA ======= */
 #imza{
   display:flex;
   justify-content:flex-end;
-  margin-top:10px;
+  margin-top:12px;
   padding-right:6px;
-  width:75%;
+  width:100%;
+}
+
+.imza-text{
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:rgba(255,255,255,.22);
+  text-transform:uppercase;
+  font-weight:400;
+  transition:color .3s ease;
+}
+
+.imza-text b{
+  color:rgba(255,255,255,.35);
+  font-weight:600;
+  letter-spacing:2px;
+}
+
+#imza:hover .imza-text{
+  color:rgba(255,255,255,.4);
+}
+
+#imza:hover .imza-text b{
+  color:rgba(255,210,0,.7);
 }
   
 </style>
