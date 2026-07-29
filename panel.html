@@ -108,7 +108,7 @@ button {
   </div>
 
   <div>
-    <h2>📋 Şarkı Listesi</h2>
+    <h2 id="sarkilistesiBaslik">📋 Şarkı Listesi</h2>
     <div id="liste" class="scrollBox"></div>
   </div>
 
@@ -290,7 +290,13 @@ document.getElementById("btn").addEventListener("click", async () => {
 async function listele() {
   const { data } = await supa.from("songs").select("*").order("id");
 
+  const toplam = data.length;
+  document.getElementById("sarkilistesiBaslik").innerText =
+    "📋 Şarkı Listesi (" + toplam + " parça)";
+
   let html = "";
+
+  data.forEach(s => {
 
   data.forEach(s => {
     const icon = s.type === "music" ? "🎵" :
