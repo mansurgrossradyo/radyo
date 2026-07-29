@@ -550,13 +550,31 @@ async function listele(){
 async function sarkiSil(id, btn){
   btn.disabled    = true;
   btn.innerText   = "...";
-  const { error } = await supa.from("songs").delete().eq("id", id);
+  
+  console.log("Siliniyor ID:", id);
+  
+  const { data, error } = await supa
+    .from("songs")
+    .delete()
+    .eq("id", id)
+    .select();
+    
+  console.log("Sonuç:", data, "Hata:", error);
+  
   if(error){
-    alert("Silinemedi: " + error.message);
+    alert("HATA: " + error.message + " | Kod: " + error.code);
     btn.disabled  = false;
     btn.innerText = "SİL";
     return;
   }
+  
+  if(!data || data.length === 0){
+    alert("UYARI: Silme komutu gitti ama hiçbir kayıt silinmedi! RLS politikası engelliyor olabilir.");
+    btn.disabled  = false;
+    btn.innerText = "SİL";
+    return;
+  }
+  
   listele();
 }
 
