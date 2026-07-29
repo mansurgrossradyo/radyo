@@ -6,18 +6,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+*{ box-sizing:border-box; }
+
 body {
   font-family: Arial;
-  background: #111;
+  background: radial-gradient(circle at top, #1a1a1a 0%, #0b0b0b 55%, #000 100%);
   color: #fff;
   text-align: center;
-  padding: 40px;
-}
-
-input, select, button {
-  padding: 10px;
-  margin: 8px;
-  font-size: 16px;
+  padding: 30px 20px 50px;
+  margin: 0;
 }
 
 button {
@@ -26,11 +23,23 @@ button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
 }
 
 .sil {
   background: #dc3545;
   padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sil:hover {
+  background: #c82333;
 }
 
 #panelContainer{
@@ -49,6 +58,7 @@ button {
   border-radius: 10px;
   max-height: 500px;
   overflow-y: auto;
+  text-align: left;
 }
 
 .satir {
@@ -59,22 +69,35 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
+}
+
+.satir span {
+  flex: 1;
+  word-break: break-word;
 }
 
 #loginBox{
-  max-width:400px;
-  margin:100px auto;
-  background:#1b1b1b;
-  padding:30px;
-  border-radius:10px;
+  max-width: 400px;
+  margin: 100px auto;
+  background: #1b1b1b;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+#loginBox input {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #222;
+  color: #fff;
 }
 
 /* ======= PREMIUM ÜST PANEL ======= */
-body{
-  background: radial-gradient(circle at top, #1a1a1a 0%, #0b0b0b 55%, #000 100%);
-  padding: 30px 20px 50px;
-}
-
 .panel-top{
   max-width: 1100px;
   margin: 0 auto 30px;
@@ -119,6 +142,8 @@ body{
   border-radius: 12px;
   padding: 12px 18px;
   font-weight: 700;
+  color: #fff;
+  cursor: pointer;
   box-shadow: 0 8px 24px rgba(255,65,108,.25);
 }
 
@@ -128,7 +153,6 @@ body{
   border-radius: 22px;
   padding: 22px;
   box-shadow: 0 20px 50px rgba(0,0,0,.35);
-  backdrop-filter: blur(10px);
 }
 
 .upload-title{
@@ -155,7 +179,9 @@ body{
   color: #fff;
   border-radius: 14px;
   outline: none;
-  min-width: 150px;
+  padding: 10px 14px;
+  font-size: 15px;
+  min-width: 200px;
   transition: .25s ease;
 }
 
@@ -180,6 +206,7 @@ body{
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  font-size: 15px;
   transition: .25s ease;
 }
 
@@ -192,6 +219,13 @@ body{
   display: none;
 }
 
+/* Dosya seçilince label rengi */
+.file-label.secildi {
+  border-color: #28ff63;
+  background: rgba(40,255,99,.08);
+  color: #28ff63;
+}
+
 #btn{
   background: linear-gradient(135deg, #f7971e, #ffd200);
   color: #111;
@@ -199,7 +233,9 @@ body{
   border-radius: 14px;
   padding: 12px 28px;
   font-weight: 800;
+  font-size: 15px;
   letter-spacing: 1px;
+  cursor: pointer;
   box-shadow: 0 8px 24px rgba(255,200,0,.25);
   transition: .25s ease;
 }
@@ -213,10 +249,18 @@ body{
   margin-top: 14px;
   min-height: 22px;
   font-weight: 600;
+  font-size: 15px;
 }
 
-/* mobil */
+#panelContainer h2 {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
 @media(max-width:700px){
+  #panelContainer {
+    grid-template-columns: 1fr;
+  }
   .panel-header{
     flex-direction: column;
     text-align: center;
@@ -231,7 +275,6 @@ body{
     width: 100%;
   }
 }
-  
 </style>
 </head>
 
@@ -240,144 +283,113 @@ body{
 <!-- LOGIN -->
 <div id="loginBox" style="display:none;">
   <h2>🔐 Panel Giriş</h2>
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="password" id="password" placeholder="Şifre"><br>
-  <button onclick="girisYap()">Giriş Yap</button>
-  <p id="loginMsg"></p>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Şifre">
+  <button onclick="girisYap()" style="width:100%;margin-top:10px;">Giriş Yap</button>
+  <p id="loginMsg" style="color:#ff5555;margin-top:10px;"></p>
 </div>
 
 <!-- PANEL -->
 <div id="panelContent" style="display:none;">
 
-<div class="panel-top">
-  <div class="panel-header">
-    <div class="panel-title">
-      <div class="panel-badge">LIVE ADMIN</div>
-      <h1>🎛 RADYO PANEL</h1>
-      <p>Şarkı yükle · Jingle ekle · İstekleri yönet</p>
+  <div class="panel-top">
+    <div class="panel-header">
+      <div class="panel-title">
+        <div class="panel-badge">LIVE ADMIN</div>
+        <h1>🎛 RADYO PANEL</h1>
+        <p>Şarkı yükle · Jingle ekle · İstekleri yönet</p>
+      </div>
+      <button class="cikis-btn" onclick="cikisYap()">⏻ Çıkış</button>
     </div>
-    <button class="cikis-btn" onclick="cikisYap()">Çıkış</button>
-  </div>
 
-  <div class="upload-card">
-    <div class="upload-title">⬆ Yeni Parça Yükle</div>
-    <div class="upload-row">
-      <input type="text" id="title" placeholder="Şarkı adı (boşsa dosya adı)">
-      <select id="type">
-        <option value="music">🎵 Müzik</option>
-        <option value="jingle">🔔 Jingle</option>
-        <option value="anons">📢 Anons</option>
-      </select>
-      <label class="file-label">
-        <span class="file-label-text">📁 Dosya Seç</span>
-        <input type="file" id="file" accept="audio/*">
-      </label>
-      <button id="btn">YÜKLE</button>
+    <div class="upload-card">
+      <div class="upload-title">⬆ Yeni Parça Yükle</div>
+      <div class="upload-row">
+        <input type="text" id="title" placeholder="Şarkı adı (boşsa dosya adı)">
+        <select id="type">
+          <option value="music">🎵 Müzik</option>
+          <option value="jingle">🔔 Jingle</option>
+          <option value="anons">📢 Anons</option>
+        </select>
+        <label class="file-label" id="fileLabel">
+          📁 Dosya Seç
+          <input type="file" id="file" accept="audio/*">
+        </label>
+        <button id="btn">YÜKLE</button>
+      </div>
+      <p id="msg"></p>
     </div>
-    <p id="msg"></p>
-  </div>
-</div>
-
-<div id="panelContainer">
-
-  <div>
-    <h2>🎵 Gelen İstekler</h2>
-    <div id="istekler" class="scrollBox"></div>
   </div>
 
-  <div>
-    <h2 id="sarkilistesiBaslik">📋 Şarkı Listesi</h2>
-    <div id="liste" class="scrollBox"></div>
+  <div id="panelContainer">
+    <div>
+      <h2>🎵 Gelen İstekler</h2>
+      <div id="istekler" class="scrollBox"></div>
+    </div>
+    <div>
+      <h2 id="sarkilistesiBaslik">📋 Şarkı Listesi</h2>
+      <div id="liste" class="scrollBox"></div>
+    </div>
   </div>
-
-</div>
 
 </div>
 
 <script>
 const PROJECT_URL = "https://xiidhsrcyjtcwcwbomga.supabase.co";
-const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
-
+const ANON_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpaWRoc3JjeWp0Y3djd2JvbWdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTk5ODgsImV4cCI6MjEwMDQ3NTk4OH0.HZGLnrC5zCJAGVdvM6utFvyr0c_0eoyQ9ZxvstPYpuk";
 const supa = supabase.createClient(PROJECT_URL, ANON_KEY);
 
-/* ============ OTOMATİK ÇIKIŞ AYARI ============ */
-const PANEL_OTURUM_DK = 60; // 60 dk sonra otomatik çıkış
-const PANEL_OTURUM_MS = PANEL_OTURUM_DK * 60 * 1000;
+/* ===== OTOMATİK ÇIKIŞ ===== */
+const PANEL_OTURUM_DK  = 60;
+const PANEL_OTURUM_MS  = PANEL_OTURUM_DK * 60 * 1000;
 const GIRIS_ZAMANI_KEY = "radyo_panel_giris_zamani";
 let otoCikisZamani = null;
-/* ============================================== */
 
-/* ================= AUTH ================= */
-
+/* ===== AUTH ===== */
 async function kontrolEt(){
-
   const { data, error } = await supa.auth.getSession();
-
-  if(error){
-    console.error("Oturum hatası:", error);
-    return;
-  }
+  if(error){ console.error(error); return; }
 
   if(data.session){
-
     let girisZamani = Number(localStorage.getItem(GIRIS_ZAMANI_KEY));
-
     if(!girisZamani){
       girisZamani = Date.now();
       localStorage.setItem(GIRIS_ZAMANI_KEY, girisZamani.toString());
     }
-
-    // Süre dolmuşsa çık
     if(Date.now() - girisZamani >= PANEL_OTURUM_MS){
-      await otomatikCikis();
-      return;
+      await otomatikCikis(); return;
     }
-
-    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("loginBox").style.display    = "none";
     document.getElementById("panelContent").style.display = "block";
-
     listele();
     istekleriGetir();
-
-    // Kalan süre sonunda otomatik çıkış
     clearTimeout(otoCikisZamani);
     const kalanSure = PANEL_OTURUM_MS - (Date.now() - girisZamani);
     otoCikisZamani = setTimeout(otomatikCikis, kalanSure);
-
   } else {
     clearTimeout(otoCikisZamani);
-    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("loginBox").style.display    = "block";
     document.getElementById("panelContent").style.display = "none";
   }
 }
 
 async function girisYap(){
-
-  const email = document.getElementById("email").value.trim();
+  const email    = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-
   if(!email || !password){
     document.getElementById("loginMsg").innerText = "Email ve şifre yazın";
     return;
   }
-
-  const { error } = await supa.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
-
+  const { error } = await supa.auth.signInWithPassword({ email, password });
   if(error){
     document.getElementById("loginMsg").innerText = "Email veya şifre hatalı";
     return;
   }
-
   localStorage.setItem(GIRIS_ZAMANI_KEY, Date.now().toString());
   document.getElementById("loginMsg").innerText = "";
-
   kontrolEt();
 }
 
-/* ✅ ÇIKIŞ BUTONU (eksikti, eklendi) */
 async function cikisYap(){
   clearTimeout(otoCikisZamani);
   localStorage.removeItem(GIRIS_ZAMANI_KEY);
@@ -389,180 +401,169 @@ async function otomatikCikis(){
   clearTimeout(otoCikisZamani);
   localStorage.removeItem(GIRIS_ZAMANI_KEY);
   await supa.auth.signOut();
-
   document.getElementById("panelContent").style.display = "none";
-  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("loginBox").style.display     = "block";
   document.getElementById("loginMsg").innerText =
     "⏰ Güvenlik nedeniyle oturum kapatıldı. Tekrar giriş yapın.";
 }
 
-/* ================= ŞARKI YÜKLE ================= */
-
-/* === DOSYA SEÇİNDE OTOMATİK BAŞLIK === */
+/* ===== DOSYA SEÇİLİNCE LABEL DEĞİŞ ===== */
 document.getElementById("file").addEventListener("change", function(){
-  const dosya = this.files[0];
-  if(!dosya) return;
-
-  const titleInput = document.getElementById("title");
-
-  // Sadece input boşsa otomatik doldur
-  let ad = dosya.name
-    .replace(/\.[^/.]+$/, "")   // uzantı kaldır
-    .replace(/_/g, " ")          // alt çizgi → boşluk
-    .replace(/-/g, " - ");       // tire düzelt
-
-  titleInput.value = ad;
-  titleInput.focus();
-
-  // Dosya label güncelle
-  document.querySelector(".file-label-text").innerText = "✅ " + dosya.name;
+  const label = document.getElementById("fileLabel");
+  if(this.files.length > 0){
+    label.classList.add("secildi");
+    label.childNodes[0].textContent = "✅ " + this.files[0].name.substring(0,20) + "...";
+  } else {
+    label.classList.remove("secildi");
+    label.childNodes[0].textContent = "📁 Dosya Seç";
+  }
 });
 
-/* === YÜKLE BUTONU === */
+/* ===== MESAJ (3 sn sonra kaybol) ===== */
+let mesajTimer = null;
+function mesajGoster(metin, renk){
+  const msg = document.getElementById("msg");
+  msg.innerText   = metin;
+  msg.style.color = renk;
+  clearTimeout(mesajTimer);
+  mesajTimer = setTimeout(() => { msg.innerText = ""; }, 3000);
+}
+
+/* ===== YÜKLE ===== */
 document.getElementById("btn").addEventListener("click", async () => {
 
-  const fileInput = document.getElementById("file");
-  const type = document.getElementById("type").value;
+  const fileInput  = document.getElementById("file");
+  const type       = document.getElementById("type").value;
   const titleInput = document.getElementById("title").value.trim();
-  const msg = document.getElementById("msg");
 
-  if (!fileInput.files.length) {
+  if(!fileInput.files.length){
     mesajGoster("⚠ Önce dosya seç!", "#ff5555");
     return;
   }
 
-  const file = fileInput.files[0];
-  const title = titleInput === "" ? file.name.replace(/\.[^/.]+$/, "") : titleInput;
+  const file  = fileInput.files[0];
+  const title = titleInput !== ""
+    ? titleInput
+    : file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
 
-  // Aynı şarkı var mı?
+  /* Aynı şarkı kontrolü */
   const { data: mevcut } = await supa
     .from("songs")
     .select("id")
     .ilike("title", title);
 
-  if (mevcut && mevcut.length > 0) {
+  if(mevcut && mevcut.length > 0){
     mesajGoster("⚠ Bu şarkı zaten ekli!", "#ff5555");
     return;
   }
 
-  mesajGoster("⏳ Yükleniyor...", "#fff");
+  mesajGoster("⏳ Yükleniyor...", "#ffffff");
 
-  const filePath = "uploads/" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+  const filePath = "uploads/" + Date.now() + "_" +
+    file.name.replace(/[^a-zA-Z0-9.]/g, "_");
 
   const { error: uploadError } = await supa.storage
     .from("radyo")
     .upload(filePath, file, { upsert: true });
 
-  if (uploadError) {
+  if(uploadError){
     mesajGoster("❌ Storage hatası: " + uploadError.message, "#ff5555");
     return;
   }
 
-  const { data } = supa.storage.from("radyo").getPublicUrl(filePath);
+  const { data: urlData } = supa.storage.from("radyo").getPublicUrl(filePath);
 
   const { error: dbError } = await supa.from("songs").insert({
     title,
-    url: data.publicUrl,
+    url: urlData.publicUrl,
     type
   });
 
-  if (dbError) {
+  if(dbError){
     mesajGoster("❌ DB hatası: " + dbError.message, "#ff5555");
     return;
   }
 
   mesajGoster("✅ Eklendi: " + title, "#28ff63");
 
-  // Temizle
+  /* Temizle */
   document.getElementById("title").value = "";
-  document.getElementById("file").value = "";
-  document.querySelector(".file-label-text").innerText = "📁 Dosya Seç";
+  document.getElementById("file").value  = "";
+  const label = document.getElementById("fileLabel");
+  label.classList.remove("secildi");
+  label.childNodes[0].textContent = "📁 Dosya Seç";
 
   listele();
 });
 
-/* === MESAJ: 3 SANİYE SONRA KAYBOL === */
-let mesajZamani = null;
-function mesajGoster(metin, renk){
-  const msg = document.getElementById("msg");
-  msg.innerText = metin;
-  msg.style.color = renk;
+/* ===== LİSTE ===== */
+async function listele(){
+  const { data, error } = await supa.from("songs").select("*").order("id");
+  if(error){ console.error("Liste hatası:", error); return; }
 
-  clearTimeout(mesajZamani);
-  mesajZamani = setTimeout(() => {
-    msg.innerText = "";
-  }, 3000); // 3 saniye sonra kaybol
-}
-
-/* ================= ŞARKI LİSTE ================= */
-
-async function listele() {
-  const { data } = await supa.from("songs").select("*").order("id");
-
-  const toplam = data.length;
   document.getElementById("sarkilistesiBaslik").innerText =
-    "📋 Şarkı Listesi (" + toplam + " parça)";
+    "📋 Şarkı Listesi (" + data.length + " parça)";
 
   let html = "";
-
   data.forEach(s => {
-    const icon = s.type === "music" ? "🎵" :
-                 s.type === "jingle" ? "🔔" : "📢";
-
+    const icon = s.type === "jingle" ? "🔔" :
+                 s.type === "anons"  ? "📢" : "🎵";
     html += `
       <div class="satir">
         <span>${icon} ${s.title}</span>
         <button class="sil" onclick="sil(${s.id})">SİL</button>
-      </div>
-    `;
+      </div>`;
   });
 
-  document.getElementById("liste").innerHTML = html;
+  document.getElementById("liste").innerHTML = html || "<p style='color:#666'>Henüz şarkı yok</p>";
 }
 
+/* ===== SİL ===== */
 async function sil(id){
-  await supa.from("songs").delete().eq("id", id);
+  const { error } = await supa.from("songs").delete().eq("id", id);
+  if(error){
+    alert("Silinemedi: " + error.message);
+    return;
+  }
   listele();
 }
 
-/* ================= İSTEKLER ================= */
-
+/* ===== İSTEKLER ===== */
 async function istekleriGetir(){
-  const { data } = await supa.from("requests").select("*").order("created_at",{ascending:false});
+  const { data, error } = await supa
+    .from("requests")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if(error){ console.error("İstek hatası:", error); return; }
 
   let html = "";
-
-  data.forEach(r=>{
+  data.forEach(r => {
     html += `
       <div class="satir">
         <span><b>${r.name}</b>: ${r.message}</span>
         <button class="sil" onclick="istekSil(${r.id})">SİL</button>
-      </div>
-    `;
+      </div>`;
   });
 
-  document.getElementById("istekler").innerHTML = html;
+  document.getElementById("istekler").innerHTML =
+    html || "<p style='color:#666;padding:10px'>Henüz istek yok</p>";
 }
 
 async function istekSil(id){
-  await supa.from("requests").delete().eq("id", id);
+  const { error } = await supa.from("requests").delete().eq("id", id);
+  if(error){ alert("Silinemedi: " + error.message); return; }
   istekleriGetir();
 }
 
-/* ================= BAŞLAT ================= */
-
+/* ===== BAŞLAT ===== */
 setInterval(istekleriGetir, 10000);
-
-// 30 sn'de bir oturum süresini kontrol et
 setInterval(() => {
-  const girisZamani = Number(localStorage.getItem(GIRIS_ZAMANI_KEY));
-  if (girisZamani && Date.now() - girisZamani >= PANEL_OTURUM_MS) {
-    otomatikCikis();
-  }
+  const gz = Number(localStorage.getItem(GIRIS_ZAMANI_KEY));
+  if(gz && Date.now() - gz >= PANEL_OTURUM_MS) otomatikCikis();
 }, 30000);
 
 kontrolEt();
 </script>
-
 </body>
 </html>
