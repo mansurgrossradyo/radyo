@@ -311,6 +311,9 @@ button {
           <option value="jingle">🔔 Jingle</option>
           <option value="anons">📢 Anons</option>
         </select>
+
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
         <label class="file-label" id="fileLabel">
           📁 Dosya Seç
           <input type="file" id="file" accept="audio/*">
@@ -435,6 +438,8 @@ document.getElementById("btn").addEventListener("click", async () => {
   const fileInput  = document.getElementById("file");
   const type       = document.getElementById("type").value;
   const titleInput = document.getElementById("title").value.trim();
+  const startDate = document.getElementById("startDate").value || null;
+  const endDate   = document.getElementById("endDate").value || null;
 
   if(!fileInput.files.length){
     mesajGoster("⚠ Önce dosya seç!", "#ff5555");
@@ -474,10 +479,12 @@ document.getElementById("btn").addEventListener("click", async () => {
   const { data: urlData } = supa.storage.from("radyo").getPublicUrl(filePath);
 
   const { error: dbError } = await supa.from("songs").insert({
-    title,
-    url: urlData.publicUrl,
-    type
-  });
+  title,
+  url: urlData.publicUrl,
+  type,
+  start_date: startDate,
+  end_date: endDate
+});
 
   if(dbError){
     mesajGoster("❌ DB hatası: " + dbError.message, "#ff5555");
