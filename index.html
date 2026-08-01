@@ -549,16 +549,28 @@ let ezanModu = false;
 async function verileriYukle(){
 
     const { data } = await client
-        .from("songs")
-        .select("*");
+  .from("songs")
+  .select("*");
 
-    muzikler = (data || []).filter(x => x.type === "music");
-    jingles  = (data || []).filter(x => x.type === "jingle");
-    anonslar = (data || []).filter(x => x.type === "anons");
+const bugun = new Date().toISOString().split("T")[0];
 
-    karistir(muzikler);
+muzikler = (data || []).filter(x =>
+  x.type === "music" &&
+  (!x.start_date || x.start_date <= bugun) &&
+  (!x.end_date   || x.end_date >= bugun)
+);
 
-}
+jingles = (data || []).filter(x =>
+  x.type === "jingle" &&
+  (!x.start_date || x.start_date <= bugun) &&
+  (!x.end_date   || x.end_date >= bugun)
+);
+
+anonslar = (data || []).filter(x =>
+  x.type === "anons" &&
+  (!x.start_date || x.start_date <= bugun) &&
+  (!x.end_date   || x.end_date >= bugun)
+);
 function karistir(dizi){
 
     for(let i=dizi.length-1;i>0;i--){
