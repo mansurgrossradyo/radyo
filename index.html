@@ -541,15 +541,23 @@ const githubMuzikler = [];
 
 for(let i=1;i<=100;i++){
 
+    let dosya;
+
+    if(i<=5){
+        dosya = `muzik(${i}).mp3`;
+    }else{
+        dosya = `muzik%20(${i}).mp3`;
+    }
+
     githubMuzikler.push({
         title:"Müzik "+i,
         type:"music",
-        url:`https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(${i}).mp3`
+        url:`https://mansurgrossradyo.github.io/radyo/muzik/${dosya}`
     });
 
 }
 
-console.log("GitHub müzik sayısı:", githubMuzikler.length);
+console.log("GitHub müzik sayısı:",githubMuzikler.length);
 let sira = 0;
 let adim = 0;
 
