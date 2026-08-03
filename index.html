@@ -541,18 +541,15 @@ const githubMuzikler = [];
 
 for(let i=1;i<=100;i++){
 
-    const githubMuzikler = [];
-
-for(let i=1;i<=100;i++){
-
     githubMuzikler.push({
         title:"Müzik "+i,
         type:"music",
-        url:
-        `https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(${i}).mp3`
+        url:`https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(${i}).mp3`
     });
 
 }
+
+console.log("GitHub müzik sayısı:", githubMuzikler.length);
 let sira = 0;
 let adim = 0;
 
@@ -575,6 +572,8 @@ muzikler = githubMuzikler.concat(
   (!x.start_date || x.start_date <= bugun) &&
   (!x.end_date   || x.end_date >= bugun)
 ));
+
+console.log("Toplam müzik:", muzikler.length);
 
 jingles = (data || []).filter(x =>
   x.type === "jingle" &&
@@ -665,7 +664,7 @@ function gec(){
             }
 
         }
-
+  console.log("Geçiliyor. Sıra:",sira,"Adım:",adim);
         // Müzik
         if(adim === 0){
             break;
