@@ -534,33 +534,19 @@ const player=document.getElementById("player");
 const durum=document.getElementById("durum");
 const siradakiEl=document.getElementById("siradaki");
 
-let muzikler = [
-{
- title:"Müzik 12",
- type:"music",
- url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(12).mp3"
-},
-{
- title:"Müzik 13",
- type:"music",
- url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(13).mp3"
-},
-{
- title:"Müzik 14",
- type:"music",
- url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(14).mp3"
-}
-];
+let muzikler = [];
+let jingles = [];
+let anonslar = [];
 
-jingles = [
-{
- title:"Jingle",
- type:"jingle",
- url:"https://mansurgrossradyo.github.io/radyo/muzik/jingil.mp3"
-}
-];
+// JINGLE
+jingles.push({
+    title:"Jingle",
+    type:"jingle",
+    url:"https://mansurgrossradyo.github.io/radyo/muzik/jingil.mp3"
+});
 
 
+// ANONSLAR
 for(let i=1;i<=7;i++){
 
     anonslar.push({
