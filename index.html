@@ -534,9 +534,30 @@ const player=document.getElementById("player");
 const durum=document.getElementById("durum");
 const siradakiEl=document.getElementById("siradaki");
 
-let muzikler = [];
+let muzikler = [
+{
+ title:"Müzik 12",
+ type:"music",
+ url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(12).mp3"
+},
+{
+ title:"Müzik 13",
+ type:"music",
+ url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(13).mp3"
+},
+{
+ title:"Müzik 14",
+ type:"music",
+ url:"https://mansurgrossradyo.github.io/radyo/muzik/muzik%20(14).mp3"
+}
+];
+
 let jingles = [];
 let anonslar = [];
+let jingles = [];
+let anonslar = [];
+
+  
 const githubMuzikler = [];
 
 for(let i=1;i<=100;i++){
@@ -695,9 +716,35 @@ function gec(){
 }
 
 player.onended = gec;
-document.getElementById("play").onclick=async()=>{if(!muzikler.length)await verileriYukle();cal();};
-document.getElementById("pause").onclick=()=>player.pause();
-document.getElementById("volume").oninput=e=>player.volume=e.target.value;
+
+document.getElementById("play").onclick = async()=>{
+
+    console.log("PLAY BASILDI");
+
+    if(!muzikler.length){
+        await verileriYukle();
+    }
+
+    console.log("Müzik listesi:", muzikler);
+
+    if(muzikler.length === 0){
+        console.log("Müzik bulunamadı");
+        return;
+    }
+
+    cal();
+
+};
+
+
+document.getElementById("pause").onclick=()=>{
+    player.pause();
+};
+
+
+document.getElementById("volume").oninput=e=>{
+    player.volume=e.target.value;
+};
 
 /* ===== SAAT ===== */
 function saatGuncelle(){
