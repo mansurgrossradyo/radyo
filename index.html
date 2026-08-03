@@ -537,7 +537,18 @@ const siradakiEl=document.getElementById("siradaki");
 let muzikler = [];
 let jingles = [];
 let anonslar = [];
+const githubMuzikler = [];
 
+for(let i=1;i<=100;i++){
+
+    githubMuzikler.push({
+        title:"Müzik "+i,
+        type:"music",
+        url:
+        `https://raw.githubusercontent.com/mansurgrossradyo/radyo/033549ba601870faeaaebcb4b32c711ceafcf09b/muzik/muzik%20(${i}).mp3`
+    });
+
+}
 let sira = 0;
 let adim = 0;
 
@@ -554,11 +565,12 @@ async function verileriYukle(){
 
 const bugun = new Date().toISOString().split("T")[0];
 
-muzikler = (data || []).filter(x =>
+muzikler = githubMuzikler.concat(
+(data || []).filter(x =>
   x.type === "music" &&
   (!x.start_date || x.start_date <= bugun) &&
   (!x.end_date   || x.end_date >= bugun)
-);
+));
 
 jingles = (data || []).filter(x =>
   x.type === "jingle" &&
