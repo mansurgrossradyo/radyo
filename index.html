@@ -560,7 +560,7 @@ for(let i=1;i<=7;i++){
   
 const githubMuzikler = [];
 
-for(let i=1;i<=100;i++){
+for(let i=1;i<=75;i++){
 
     let dosya;
 
@@ -581,7 +581,9 @@ for(let i=1;i<=100;i++){
 console.log("GitHub müzik sayısı:",githubMuzikler.length);
 let sira = 0;
 let adim = 0;
-
+  
+karistir(githubMuzikler);
+  
 let calisiyor = false;
   
 let ezanSaatleri = {};
@@ -601,6 +603,8 @@ muzikler = githubMuzikler.concat(
   (!x.start_date || x.start_date <= bugun) &&
   (!x.end_date   || x.end_date >= bugun)
 ));
+
+karistir(muzikler);
 
 console.log("Toplam müzik:", muzikler.length);
 
