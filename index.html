@@ -668,48 +668,65 @@ function cal(){
 
 function gec(){
 
-    while(true){
+    // MÜZİK BİTTİ
+    if(adim === 0){
 
-        adim++;
-
-        if(adim > 2){
-
-            adim = 0;
-
-            sira++;
-
-            if(sira >= muzikler.length){
-
-                karistir(muzikler);
-
-                sira = 0;
-
-            }
-
+        if(jingles.length > 0){
+            adim = 1;
         }
-  console.log("Geçiliyor. Sıra:",sira,"Adım:",adim);
-        // Müzik
-        if(adim === 0){
-            break;
+        else if(anonslar.length > 0){
+            adim = 2;
         }
-
-        // Jingle varsa
-        if(adim === 1 && jingles.length){
-            break;
-        }
-
-        // Anons varsa
-        if(adim === 2 && anonslar.length){
-            break;
+        else{
+            sonrakiMuzik();
+            return;
         }
 
     }
 
-    cal();
+    // JINGLE BİTTİ
+    else if(adim === 1){
 
+        if(anonslar.length > 0){
+            adim = 2;
+        }
+        else{
+            sonrakiMuzik();
+            return;
+        }
+
+    }
+
+    // ANONS BİTTİ
+    else if(adim === 2){
+
+        sonrakiMuzik();
+        return;
+
+    }
+
+    cal();
+}
+
+function sonrakiMuzik(){
+
+    adim = 0;
+    sira++;
+
+    if(sira >= muzikler.length){
+        karistir(muzikler);
+        sira = 0;
+    }
+
+    cal();
 }
 
 player.onended = gec;
+
+player.onerror = function(){
+    console.warn("Ses dosyası yüklenemedi:", player.src);
+    gec();
+};
 
 document.getElementById("play").onclick = async()=>{
 
