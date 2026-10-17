@@ -723,11 +723,7 @@ function sonrakiMuzik(){
 
 player.onerror = function(){
     console.warn("Ses dosyası yüklenemedi:", player.src);
-    if(adim === 0){
-        sonrakiMuzik(); // Şarkı yoksa anonsa girme, direkt diğer şarkıya geç
-    } else {
-        gec();
-    }
+    gec();
 };
 
 document.getElementById("play").onclick = async()=>{
