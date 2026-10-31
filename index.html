@@ -621,99 +621,204 @@ function karistir(dizi){
 
 }
   
-// --------- ESKİ cal(), gec(), sonrakiMuzik() ve player AYARLARINI SİL, BUNU YAPIŞTIR ---------
+/* ===== RADYO ÇALMA SİSTEMİ ===== */
+
+let gecisKilidi = false;
+let oynatmaKimligi = 0;
 
 function cal() {
-    if(!muzikler.length) return;
+
+    if (!muzikler.length || ezanModu) return;
 
     let aktif;
 
-    if(adim === 0) {
+    if (adim === 0) {
+
         aktif = muzikler[sira];
-        // Eğer o sıradaki müzik verisi bozuksa/yoksa sonrakine atla
-        if(!aktif){
+
+        durum.innerText = "🎵 " + (aktif.title || "Müzik");
+
+        siradakiEl.innerText =
+            "Sıradaki: " +
+            (muzikler[(sira + 1) % muzikler.length]?.title || "-");
+
+    }
+
+    else if (adim === 1) {
+
+        if (!jingles.length) {
+            gec();
+            return;
+        }
+
+        aktif = jingles[Math.floor(Math.random() * jingles.length)];
+
+        durum.innerText = "🔔 Jingle";
+
+    }
+
+    else if (adim === 2) {
+
+        if (!anonslar.length) {
             sonrakiMuzik();
             return;
         }
-        durum.innerText = "🎵 " + (aktif.title || "Müzik");
-        siradakiEl.innerText = "Sıradaki: " + (muzikler[(sira+1) % muzikler.length]?.title || "-");
-    }
-    else if(adim === 1 && jingles.length > 0) {
-        aktif = jingles[Math.floor(Math.random() * jingles.length)];
-        durum.innerText = "🔔 Jingle";
-    }
-    else if(adim === 2 && anonslar.length > 0) {
+
         aktif = anonslar[Math.floor(Math.random() * anonslar.length)];
+
         durum.innerText = "📢 Anons";
+
     }
-    else {
+
+    if (!aktif || !aktif.url) {
         gec();
         return;
     }
+
+    const kimlik = ++oynatmaKimligi;
+
+    gecisKilidi = false;
 
     player.src = aktif.url;
 
-    // YENİ: Hata çökmesini engelleyen çalma sistemi
-    let playPromise = player.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            calisiyor = true;
-        }).catch(err => {
-            console.warn("Çalma hatası, dosya bozuk veya tarayıcı engelledi. Sıradakine geçiliyor...", err);
-            // Hata olursa 1 saniye bekleyip sıradakine atla (Sistemin kilitlenmemesi için)
-            setTimeout(() => {
-                gec();
-            }, 1000);
-        });
-    }
+    player.play().then(() => {
+
+        if (kimlik !== oynatmaKimligi) return;
+
+        calisiyor = true;
+
+    }).catch(err => {
+
+        if (kimlik !== oynatmaKimligi) return;
+
+        console.warn("Dosya çalınamadı:", aktif.url);
+
+        hataliDosyaGec(kimlik);
+
+    });
+
 }
 
-function gec() {
-    // Ezan okunuyorsa şarkı geçişi yapma, bekle!
-    if(ezanModu) return;
 
-    if(adim === 0) {
-        if(jingles.length > 0) adim = 1;
-        else if(anonslar.length > 0) adim = 2;
-        else { sonrakiMuzik(); return; }
-    }
-    else if(adim === 1) {
-        if(anonslar.length > 0) adim = 2;
-        else { sonrakiMuzik(); return; }
-    }
-    else if(adim === 2) {
+/* ===== HATALI DOSYAYI ATLA ===== */
+
+function hataliDosyaGec(kimlik) {
+
+    if (ezanModu) return;
+
+    if (kimlik !== oynatmaKimligi) return;
+
+    if (gecisKilidi) return;
+
+    gecisKilidi = true;
+
+    // Anons yoksa doğrudan müziğe geç
+    if (adim === 2) {
+
+        console.log("Anons bulunamadı, müziğe geçiliyor.");
+
         sonrakiMuzik();
+
         return;
     }
-    cal();
+
+    // Jingle yoksa anonsa geç
+    if (adim === 1) {
+
+        console.log("Jingle bulunamadı.");
+
+        gec();
+
+        return;
+    }
+
+    // Müzik yoksa sonraki müziği dene
+    if (adim === 0) {
+
+        console.log("Müzik bulunamadı.");
+
+        sonrakiMuzik();
+
+    }
+
 }
+
+
+/* ===== NORMAL GEÇİŞ ===== */
+
+function gec() {
+
+    if (ezanModu) return;
+
+    if (adim === 0) {
+
+        // Müzik bitti → Jingle
+        adim = 1;
+
+    }
+
+    else if (adim === 1) {
+
+        // Jingle bitti → Anons
+        adim = 2;
+
+    }
+
+    else if (adim === 2) {
+
+        // Anons bitti → Müzik
+        sonrakiMuzik();
+
+        return;
+
+    }
+
+    cal();
+
+}
+
+
+/* ===== SONRAKİ MÜZİK ===== */
 
 function sonrakiMuzik() {
+
     adim = 0;
+
     sira++;
 
-    if(sira >= muzikler.length) {
+    if (sira >= muzikler.length) {
+
         karistir(muzikler);
+
         sira = 0;
+
     }
+
     cal();
+
 }
 
-// Şarkı sorunsuz bitince sıradakine geç
+
+/* ===== DOSYA BİTİNCE ===== */
+
 player.onended = function() {
+
+    if (ezanModu) return;
+
     gec();
+
 };
 
-// Dosya (404 Not Found) bulunamazsa sistemi kilitleme, atla
+
+/* ===== DOSYA BULUNAMAZSA ===== */
+
 player.onerror = function() {
-    console.warn("Ses dosyası bulunamadı:", player.src);
-    setTimeout(() => {
-        gec();
-    }, 1000);
-};
 
-// ------------------------------------------------------------------------------------------
+    console.warn("Dosya bulunamadı:", player.src);
+
+    hataliDosyaGec(oynatmaKimligi);
+
+};
 
 document.getElementById("play").onclick = async()=>{
 
