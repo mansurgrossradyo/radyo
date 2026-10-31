@@ -546,15 +546,15 @@ jingles.push({
 });
 
 
-// ANONSLAR
-for(let i=1;i<=7;i++){
+// ANONSLAR (dosyalar sunucuya yüklenince 7'yi değiştir)
+const ANONS_SAYISI = 0;  // ← Şu an anons yok, 0 bırak
 
+for(let i = 1; i <= ANONS_SAYISI; i++){
     anonslar.push({
-        title:"Anons "+i,
-        type:"anons",
-        url:`https://mansurgrossradyo.github.io/radyo/anons/anons%20(${i}).mp3`
+        title: "Anons " + i,
+        type: "anons",
+        url: `https://mansurgrossradyo.github.io/radyo/anons/anons%20(${i}).mp3`
     });
-
 }
 
   
